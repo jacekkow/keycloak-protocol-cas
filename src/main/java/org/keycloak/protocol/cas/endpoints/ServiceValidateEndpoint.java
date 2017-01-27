@@ -6,16 +6,22 @@ import org.keycloak.models.ProtocolMapperModel;
 import org.keycloak.models.RealmModel;
 import org.keycloak.models.UserSessionModel;
 import org.keycloak.protocol.ProtocolMapper;
-import org.keycloak.protocol.cas.CASLoginProtocol;
+import org.keycloak.protocol.cas.mappers.CASAttributeMapper;
+import org.keycloak.protocol.cas.representations.CasServiceResponse;
+import org.keycloak.protocol.cas.utils.ContentTypeHelper;
+import org.keycloak.protocol.cas.utils.ServiceResponseHelper;
 import org.keycloak.services.ErrorResponseException;
 import org.keycloak.services.managers.ClientSessionCode;
 
-import javax.ws.rs.core.HttpHeaders;
-import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.Response;
+import javax.ws.rs.core.*;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Set;
 
 public class ServiceValidateEndpoint extends ValidateEndpoint {
+    @Context
+    private Request restRequest;
+
     public ServiceValidateEndpoint(RealmModel realm, EventBuilder event) {
         super(realm, event);
     }
@@ -26,28 +32,26 @@ public class ServiceValidateEndpoint extends ValidateEndpoint {
 
         Set<ProtocolMapperModel> mappings = new ClientSessionCode(session, realm, clientSession).getRequestedProtocolMappers();
         KeycloakSessionFactory sessionFactory = session.getKeycloakSessionFactory();
+        Map<String, Object> attributes = new HashMap<>();
         for (ProtocolMapperModel mapping : mappings) {
             ProtocolMapper mapper = (ProtocolMapper) sessionFactory.getProviderFactory(ProtocolMapper.class, mapping.getProtocolMapper());
+            if (mapper instanceof CASAttributeMapper) {
+                ((CASAttributeMapper) mapper).setAttribute(attributes, mapping, userSession);
+            }
         }
 
-        return Response.ok()
-                .header(HttpHeaders.CONTENT_TYPE, (jsonFormat() ? MediaType.APPLICATION_JSON_TYPE : MediaType.APPLICATION_XML_TYPE).withCharset("utf-8"))
-                .entity("<cas:serviceResponse xmlns:cas='http://www.yale.edu/tp/cas'>\n" +
-                        "    <cas:authenticationSuccess>\n" +
-                        "        <cas:user>" + userSession.getUser().getUsername() + "</cas:user>\n" +
-                        "        <cas:attributes>\n" +
-                        "        </cas:attributes>\n" +
-                        "    </cas:authenticationSuccess>\n" +
-                        "</cas:serviceResponse>")
-                .build();
+        CasServiceResponse serviceResponse = ServiceResponseHelper.createSuccess(userSession.getUser().getUsername(), attributes);
+        return prepare(Response.Status.OK, serviceResponse);
     }
 
     @Override
     protected Response errorResponse(ErrorResponseException e) {
-        return super.errorResponse(e);
+        CasServiceResponse serviceResponse = ServiceResponseHelper.createFailure("CODE", "Description");
+        return prepare(Response.Status.FORBIDDEN, serviceResponse);
     }
 
-    private boolean jsonFormat() {
-        return "json".equalsIgnoreCase(uriInfo.getQueryParameters().getFirst(CASLoginProtocol.FORMAT_PARAM));
+    private Response prepare(Response.Status status, CasServiceResponse serviceResponse) {
+        MediaType responseMediaType = new ContentTypeHelper(request, restRequest, uriInfo).selectResponseType();
+        return ServiceResponseHelper.createResponse(status, responseMediaType, serviceResponse);
     }
 }

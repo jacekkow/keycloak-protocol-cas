@@ -1,7 +1,8 @@
 package org.keycloak.protocol.cas.mappers;
 
 import org.keycloak.models.ProtocolMapperModel;
-import org.keycloak.protocol.ProtocolMapperUtils;
+import org.keycloak.models.UserModel;
+import org.keycloak.models.UserSessionModel;
 import org.keycloak.protocol.cas.CASLoginProtocol;
 import org.keycloak.protocol.oidc.mappers.OIDCAttributeMapperHelper;
 import org.keycloak.provider.ProviderConfigProperty;
@@ -11,7 +12,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import static org.keycloak.protocol.oidc.mappers.OIDCAttributeMapperHelper.JSON_TYPE;
 import static org.keycloak.protocol.oidc.mappers.OIDCAttributeMapperHelper.TOKEN_CLAIM_NAME;
 
 public class FullNameMapper extends AbstractCASProtocolMapper {
@@ -42,6 +42,18 @@ public class FullNameMapper extends AbstractCASProtocolMapper {
     @Override
     public String getHelpText() {
         return "Maps the user's first and last name to the OpenID Connect 'name' claim. Format is <first> + ' ' + <last>";
+    }
+
+    @Override
+    public void setAttribute(Map<String, Object> attributes, ProtocolMapperModel mappingModel, UserSessionModel userSession) {
+        UserModel user = userSession.getUser();
+        String protocolClaim = mappingModel.getConfig().get(TOKEN_CLAIM_NAME);
+        if (protocolClaim == null) {
+            return;
+        }
+        String first = user.getFirstName() == null ? "" : user.getFirstName() + " ";
+        String last = user.getLastName() == null ? "" : user.getLastName();
+        attributes.put(protocolClaim, first + last);
     }
 
     public static ProtocolMapperModel create(String name, String tokenClaimName,

@@ -1,15 +1,14 @@
 package org.keycloak.protocol.cas.mappers;
 
+import org.keycloak.models.GroupModel;
 import org.keycloak.models.ProtocolMapperModel;
+import org.keycloak.models.UserSessionModel;
+import org.keycloak.models.utils.ModelToRepresentation;
 import org.keycloak.protocol.cas.CASLoginProtocol;
-import org.keycloak.protocol.oidc.OIDCLoginProtocol;
 import org.keycloak.protocol.oidc.mappers.OIDCAttributeMapperHelper;
 import org.keycloak.provider.ProviderConfigProperty;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 public class GroupMembershipMapper extends AbstractCASProtocolMapper {
     private static final List<ProviderConfigProperty> configProperties = new ArrayList<ProviderConfigProperty>();
@@ -46,6 +45,22 @@ public class GroupMembershipMapper extends AbstractCASProtocolMapper {
     @Override
     public String getHelpText() {
         return "Map user group membership";
+    }
+
+    @Override
+    public void setAttribute(Map<String, Object> attributes, ProtocolMapperModel mappingModel, UserSessionModel userSession) {
+        List<String> membership = new LinkedList<>();
+        boolean fullPath = useFullPath(mappingModel);
+        for (GroupModel group : userSession.getUser().getGroups()) {
+            if (fullPath) {
+                membership.add(ModelToRepresentation.buildGroupPath(group));
+            } else {
+                membership.add(group.getName());
+            }
+        }
+        String protocolClaim = mappingModel.getConfig().get(OIDCAttributeMapperHelper.TOKEN_CLAIM_NAME);
+
+        attributes.put(protocolClaim, membership);
     }
 
     public static boolean useFullPath(ProtocolMapperModel mappingModel) {

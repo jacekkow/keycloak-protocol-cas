@@ -6,7 +6,7 @@ import org.keycloak.models.KeycloakSessionFactory;
 import org.keycloak.protocol.ProtocolMapper;
 import org.keycloak.protocol.cas.CASLoginProtocol;
 
-public abstract class AbstractCASProtocolMapper implements ProtocolMapper {
+public abstract class AbstractCASProtocolMapper implements ProtocolMapper, CASAttributeMapper {
     public static final String TOKEN_MAPPER_CATEGORY = "Token mapper";
 
     @Override

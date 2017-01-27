@@ -12,10 +12,7 @@ import org.keycloak.protocol.cas.endpoints.ValidateEndpoint;
 import org.keycloak.services.resources.RealmsResource;
 
 import javax.ws.rs.Path;
-import javax.ws.rs.core.Context;
-import javax.ws.rs.core.HttpHeaders;
-import javax.ws.rs.core.UriBuilder;
-import javax.ws.rs.core.UriInfo;
+import javax.ws.rs.core.*;
 
 public class CASLoginProtocolService {
     private RealmModel realm;

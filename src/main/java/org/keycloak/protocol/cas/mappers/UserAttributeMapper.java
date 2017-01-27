@@ -1,6 +1,9 @@
 package org.keycloak.protocol.cas.mappers;
 
 import org.keycloak.models.ProtocolMapperModel;
+import org.keycloak.models.UserModel;
+import org.keycloak.models.UserSessionModel;
+import org.keycloak.models.utils.KeycloakModelUtils;
 import org.keycloak.protocol.ProtocolMapperUtils;
 import org.keycloak.protocol.cas.CASLoginProtocol;
 import org.keycloak.protocol.oidc.mappers.OIDCAttributeMapperHelper;
@@ -58,6 +61,19 @@ public class UserAttributeMapper extends AbstractCASProtocolMapper {
     @Override
     public String getHelpText() {
         return "Map a custom user attribute to a token claim.";
+    }
+
+    @Override
+    public void setAttribute(Map<String, Object> attributes, ProtocolMapperModel mappingModel, UserSessionModel userSession) {
+        UserModel user = userSession.getUser();
+        String protocolClaim = mappingModel.getConfig().get(TOKEN_CLAIM_NAME);
+        if (protocolClaim == null) {
+            return;
+        }
+        String attributeName = mappingModel.getConfig().get(ProtocolMapperUtils.USER_ATTRIBUTE);
+        List<String> attributeValue = KeycloakModelUtils.resolveAttribute(user, attributeName);
+        if (attributeValue == null) return;
+        attributes.put(protocolClaim, OIDCAttributeMapperHelper.mapAttributeValue(mappingModel, attributeValue));
     }
 
     public static ProtocolMapperModel create(String name, String userAttribute,
