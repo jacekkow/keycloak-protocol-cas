@@ -6,7 +6,7 @@ import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlValue;
 
 @XmlAccessorType(XmlAccessType.FIELD)
-public class CasServiceResponseAuthenticationFailure {
+public class CASServiceResponseAuthenticationFailure {
     @XmlAttribute
     private String code;
     @XmlValue

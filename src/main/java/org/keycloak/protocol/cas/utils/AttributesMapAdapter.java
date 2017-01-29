@@ -1,6 +1,6 @@
 package org.keycloak.protocol.cas.utils;
 
-import org.keycloak.protocol.cas.representations.CasServiceResponse;
+import org.keycloak.protocol.cas.representations.CASServiceResponse;
 
 import javax.xml.bind.JAXBElement;
 import javax.xml.bind.annotation.XmlAccessType;
@@ -50,7 +50,7 @@ public final class AttributesMapAdapter extends XmlAdapter<AttributesMapAdapter.
 
         private void addElement(String name, Object value) {
             if (value != null) {
-                String namespace = CasServiceResponse.class.getPackage().getAnnotation(XmlSchema.class).namespace();
+                String namespace = CASServiceResponse.class.getPackage().getAnnotation(XmlSchema.class).namespace();
                 elements.add(new JAXBElement<>(new QName(namespace, name), String.class, value.toString()));
             }
         }

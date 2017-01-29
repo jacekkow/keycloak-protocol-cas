@@ -2,7 +2,7 @@ package org.keycloak.protocol.cas;
 
 import org.junit.Test;
 import org.keycloak.protocol.cas.representations.CASErrorCode;
-import org.keycloak.protocol.cas.representations.CasServiceResponse;
+import org.keycloak.protocol.cas.representations.CASServiceResponse;
 import org.keycloak.protocol.cas.utils.ServiceResponseHelper;
 import org.keycloak.protocol.cas.utils.ServiceResponseMarshaller;
 
@@ -62,7 +62,7 @@ public class ServiceResponseTest {
         attributes.put("int", 123);
         attributes.put("string", "abc");
 
-        CasServiceResponse response = ServiceResponseHelper.createSuccess("username", attributes, "PGTIOU-test",
+        CASServiceResponse response = ServiceResponseHelper.createSuccess("username", attributes, "PGTIOU-test",
                 Arrays.asList("https://proxy1/pgtUrl", "https://proxy2/pgtUrl"));
 
         assertEquals(EXPECTED_JSON_SUCCESS, ServiceResponseMarshaller.marshalJson(response));
@@ -71,7 +71,7 @@ public class ServiceResponseTest {
 
     @Test
     public void testErrorResponse() throws Exception {
-        CasServiceResponse response = ServiceResponseHelper.createFailure(CASErrorCode.INVALID_REQUEST, "Error description");
+        CASServiceResponse response = ServiceResponseHelper.createFailure(CASErrorCode.INVALID_REQUEST, "Error description");
 
         assertEquals(EXPECTED_JSON_FAILURE, ServiceResponseMarshaller.marshalJson(response));
         assertEquals(EXPECTED_XML_FAILURE, ServiceResponseMarshaller.marshalXml(response));

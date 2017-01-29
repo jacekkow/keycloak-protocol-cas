@@ -8,7 +8,7 @@ import java.util.List;
 import java.util.Map;
 
 @XmlAccessorType(XmlAccessType.FIELD)
-public class CasServiceResponseAuthenticationSuccess {
+public class CASServiceResponseAuthenticationSuccess {
     private String user;
     private String proxyGrantingTicket;
     @XmlElementWrapper

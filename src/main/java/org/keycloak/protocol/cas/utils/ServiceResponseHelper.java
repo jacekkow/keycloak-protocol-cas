@@ -1,9 +1,9 @@
 package org.keycloak.protocol.cas.utils;
 
 import org.keycloak.protocol.cas.representations.CASErrorCode;
-import org.keycloak.protocol.cas.representations.CasServiceResponse;
-import org.keycloak.protocol.cas.representations.CasServiceResponseAuthenticationFailure;
-import org.keycloak.protocol.cas.representations.CasServiceResponseAuthenticationSuccess;
+import org.keycloak.protocol.cas.representations.CASServiceResponse;
+import org.keycloak.protocol.cas.representations.CASServiceResponseAuthenticationFailure;
+import org.keycloak.protocol.cas.representations.CASServiceResponseAuthenticationSuccess;
 
 import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.MediaType;
@@ -15,14 +15,14 @@ public final class ServiceResponseHelper {
     private ServiceResponseHelper() {
     }
 
-    public static CasServiceResponse createSuccess(String username, Map<String, Object> attributes) {
+    public static CASServiceResponse createSuccess(String username, Map<String, Object> attributes) {
         return createSuccess(username, attributes, null, null);
     }
 
-    public static CasServiceResponse createSuccess(String username, Map<String, Object> attributes,
+    public static CASServiceResponse createSuccess(String username, Map<String, Object> attributes,
                                                    String proxyGrantingTicket, List<String> proxies) {
-        CasServiceResponse response = new CasServiceResponse();
-        CasServiceResponseAuthenticationSuccess success = new CasServiceResponseAuthenticationSuccess();
+        CASServiceResponse response = new CASServiceResponse();
+        CASServiceResponseAuthenticationSuccess success = new CASServiceResponseAuthenticationSuccess();
         success.setUser(username);
         success.setProxies(proxies);
         success.setProxyGrantingTicket(proxyGrantingTicket);
@@ -33,9 +33,9 @@ public final class ServiceResponseHelper {
         return response;
     }
 
-    public static CasServiceResponse createFailure(CASErrorCode errorCode, String errorDescription) {
-        CasServiceResponse response = new CasServiceResponse();
-        CasServiceResponseAuthenticationFailure failure = new CasServiceResponseAuthenticationFailure();
+    public static CASServiceResponse createFailure(CASErrorCode errorCode, String errorDescription) {
+        CASServiceResponse response = new CASServiceResponse();
+        CASServiceResponseAuthenticationFailure failure = new CASServiceResponseAuthenticationFailure();
         failure.setCode(errorCode == null ? CASErrorCode.INTERNAL_ERROR.name() : errorCode.name());
         failure.setDescription(errorDescription);
         response.setAuthenticationFailure(failure);
@@ -43,7 +43,7 @@ public final class ServiceResponseHelper {
         return response;
     }
 
-    public static Response createResponse(Response.Status status, MediaType mediaType, CasServiceResponse serviceResponse) {
+    public static Response createResponse(Response.Status status, MediaType mediaType, CASServiceResponse serviceResponse) {
         Response.ResponseBuilder builder = Response.status(status)
                 .header(HttpHeaders.CONTENT_TYPE, mediaType.withCharset("utf-8"));
         if (MediaType.APPLICATION_JSON_TYPE.equals(mediaType)) {

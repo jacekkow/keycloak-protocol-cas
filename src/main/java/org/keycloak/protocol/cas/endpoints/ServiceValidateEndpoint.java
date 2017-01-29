@@ -7,7 +7,7 @@ import org.keycloak.models.RealmModel;
 import org.keycloak.models.UserSessionModel;
 import org.keycloak.protocol.ProtocolMapper;
 import org.keycloak.protocol.cas.mappers.CASAttributeMapper;
-import org.keycloak.protocol.cas.representations.CasServiceResponse;
+import org.keycloak.protocol.cas.representations.CASServiceResponse;
 import org.keycloak.protocol.cas.utils.CASValidationException;
 import org.keycloak.protocol.cas.utils.ContentTypeHelper;
 import org.keycloak.protocol.cas.utils.ServiceResponseHelper;
@@ -40,17 +40,17 @@ public class ServiceValidateEndpoint extends ValidateEndpoint {
             }
         }
 
-        CasServiceResponse serviceResponse = ServiceResponseHelper.createSuccess(userSession.getUser().getUsername(), attributes);
+        CASServiceResponse serviceResponse = ServiceResponseHelper.createSuccess(userSession.getUser().getUsername(), attributes);
         return prepare(Response.Status.OK, serviceResponse);
     }
 
     @Override
     protected Response errorResponse(CASValidationException e) {
-        CasServiceResponse serviceResponse = ServiceResponseHelper.createFailure(e.getError(), e.getErrorDescription());
+        CASServiceResponse serviceResponse = ServiceResponseHelper.createFailure(e.getError(), e.getErrorDescription());
         return prepare(e.getStatus(), serviceResponse);
     }
 
-    private Response prepare(Response.Status status, CasServiceResponse serviceResponse) {
+    private Response prepare(Response.Status status, CASServiceResponse serviceResponse) {
         MediaType responseMediaType = new ContentTypeHelper(request, restRequest, uriInfo).selectResponseType();
         return ServiceResponseHelper.createResponse(status, responseMediaType, serviceResponse);
     }

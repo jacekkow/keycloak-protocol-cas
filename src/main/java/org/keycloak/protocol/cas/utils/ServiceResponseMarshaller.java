@@ -5,7 +5,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.util.DefaultIndenter;
 import com.fasterxml.jackson.core.util.DefaultPrettyPrinter;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import org.keycloak.protocol.cas.representations.CasServiceResponse;
+import org.keycloak.protocol.cas.representations.CASServiceResponse;
 
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;
@@ -23,9 +23,9 @@ public final class ServiceResponseMarshaller {
     private ServiceResponseMarshaller() {
     }
 
-    public static String marshalXml(CasServiceResponse serviceResponse) {
+    public static String marshalXml(CASServiceResponse serviceResponse) {
         try {
-            JAXBContext jaxbContext = JAXBContext.newInstance(CasServiceResponse.class);
+            JAXBContext jaxbContext = JAXBContext.newInstance(CASServiceResponse.class);
             Marshaller marshaller = jaxbContext.createMarshaller();
             //disable xml header
             marshaller.setProperty(Marshaller.JAXB_FRAGMENT, true);
@@ -39,7 +39,7 @@ public final class ServiceResponseMarshaller {
         }
     }
 
-    public static String marshalJson(CasServiceResponse serviceResponse) {
+    public static String marshalJson(CASServiceResponse serviceResponse) {
         ObjectMapper mapper = new ObjectMapper();
         mapper.setSerializationInclusion(JsonInclude.Include.NON_NULL);
         //Force newlines to be LF (default is system dependent)
