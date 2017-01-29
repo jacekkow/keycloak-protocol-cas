@@ -56,7 +56,7 @@ public class ValidateEndpoint {
         MultivaluedMap<String, String> params = uriInfo.getQueryParameters();
         String service = params.getFirst(CASLoginProtocol.SERVICE_PARAM);
         String ticket = params.getFirst(CASLoginProtocol.TICKET_PARAM);
-        boolean renew = "true".equalsIgnoreCase(params.getFirst(CASLoginProtocol.RENEW_PARAM));
+        boolean renew = params.containsKey(CASLoginProtocol.RENEW_PARAM);
 
         event.event(EventType.CODE_TO_TOKEN);
 
@@ -153,6 +153,11 @@ public class ValidateEndpoint {
         }
 
         parseResult.getCode().setAction(null);
+
+        if (requireReauth && AuthenticationManager.isSSOAuthentication(clientSession)) {
+            event.error(Errors.SESSION_EXPIRED);
+            throw new CASValidationException(CASErrorCode.INVALID_TICKET, "Interactive authentication was requested but not performed", Response.Status.BAD_REQUEST);
+        }
 
         UserSessionModel userSession = clientSession.getUserSession();
 

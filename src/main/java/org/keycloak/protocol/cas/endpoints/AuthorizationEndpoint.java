@@ -35,8 +35,8 @@ public class AuthorizationEndpoint extends AuthorizationEndpointBase {
     public Response build() {
         MultivaluedMap<String, String> params = uriInfo.getQueryParameters();
         String service = params.getFirst(CASLoginProtocol.SERVICE_PARAM);
-        boolean renew = "true".equalsIgnoreCase(params.getFirst(CASLoginProtocol.RENEW_PARAM));
-        boolean gateway = "true".equalsIgnoreCase(params.getFirst(CASLoginProtocol.GATEWAY_PARAM));
+        boolean renew = params.containsKey(CASLoginProtocol.RENEW_PARAM);
+        boolean gateway = params.containsKey(CASLoginProtocol.GATEWAY_PARAM);
 
         checkSsl();
         checkRealm();
@@ -46,8 +46,12 @@ public class AuthorizationEndpoint extends AuthorizationEndpointBase {
         // So back button doesn't work
         CacheControlUtil.noBackButtonCacheControlHeader();
 
+        if (renew) {
+            clientSession.setNote(CASLoginProtocol.RENEW_PARAM, "true");
+        }
+
         this.event.event(EventType.LOGIN);
-        return handleBrowserAuthenticationRequest(clientSession, new CASLoginProtocol(session, realm, uriInfo, headers, event, renew), gateway, false);
+        return handleBrowserAuthenticationRequest(clientSession, new CASLoginProtocol(session, realm, uriInfo, headers, event), gateway, false);
     }
 
     private void checkSsl() {

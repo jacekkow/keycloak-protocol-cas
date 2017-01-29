@@ -31,15 +31,13 @@ public class CASLoginProtocol implements LoginProtocol {
     protected UriInfo uriInfo;
     protected HttpHeaders headers;
     protected EventBuilder event;
-    private boolean requireReauth;
 
-    public CASLoginProtocol(KeycloakSession session, RealmModel realm, UriInfo uriInfo, HttpHeaders headers, EventBuilder event, boolean requireReauth) {
+    public CASLoginProtocol(KeycloakSession session, RealmModel realm, UriInfo uriInfo, HttpHeaders headers, EventBuilder event) {
         this.session = session;
         this.realm = realm;
         this.uriInfo = uriInfo;
         this.headers = headers;
         this.event = event;
-        this.requireReauth = requireReauth;
     }
 
     public CASLoginProtocol() {
@@ -117,7 +115,7 @@ public class CASLoginProtocol implements LoginProtocol {
 
     @Override
     public boolean requireReauthentication(UserSessionModel userSession, ClientSessionModel clientSession) {
-        return requireReauth;
+        return "true".equals(clientSession.getNote(CASLoginProtocol.RENEW_PARAM));
     }
 
     @Override
