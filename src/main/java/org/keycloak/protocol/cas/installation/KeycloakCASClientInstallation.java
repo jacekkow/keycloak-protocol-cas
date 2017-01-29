@@ -7,16 +7,24 @@ import org.keycloak.models.KeycloakSessionFactory;
 import org.keycloak.models.RealmModel;
 import org.keycloak.protocol.ClientInstallationProvider;
 import org.keycloak.protocol.cas.CASLoginProtocol;
+import org.keycloak.services.resources.RealmsResource;
 
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+import javax.ws.rs.core.UriBuilder;
 import java.net.URI;
 
 public class KeycloakCASClientInstallation implements ClientInstallationProvider {
 
     @Override
     public Response generateInstallation(KeycloakSession session, RealmModel realm, ClientModel client, URI baseUri) {
-        return Response.ok("{}", MediaType.TEXT_PLAIN_TYPE).build();
+        UriBuilder bindingUrlBuilder = UriBuilder.fromUri(baseUri);
+        String bindingUrl = RealmsResource.protocolUrl(bindingUrlBuilder)
+                .build(realm.getName(), CASLoginProtocol.LOGIN_PROTOCOL).toString();
+        String description = "CAS Server URL: " + bindingUrl + "\n" +
+                "CAS Protocol: CAS 2.0/3.0 (SAML 1.1 is not supported)\n" +
+                "Use CAS REST API: false (unsupported)";
+        return Response.ok(description, MediaType.TEXT_PLAIN_TYPE).build();
     }
 
     @Override
@@ -26,12 +34,12 @@ public class KeycloakCASClientInstallation implements ClientInstallationProvider
 
     @Override
     public String getDisplayType() {
-        return "Keycloak CAS JSON";
+        return "Plain CAS configuration";
     }
 
     @Override
     public String getHelpText() {
-        return "keycloak.json file used by the Keycloak CAS client adapter to configure clients.  This must be saved to a keycloak.json file and put in your WEB-INF directory of your WAR file.  You may also want to tweak this file after you download it.";
+        return "CAS configuration properties required by CAS clients. Enter the values shown below into the configuration dialog of your client SP.";
     }
 
     @Override
@@ -56,7 +64,7 @@ public class KeycloakCASClientInstallation implements ClientInstallationProvider
 
     @Override
     public String getId() {
-        return "keycloak-cas-keycloak-json";
+        return "keycloak-cas-text";
     }
 
     @Override
@@ -66,12 +74,12 @@ public class KeycloakCASClientInstallation implements ClientInstallationProvider
 
     @Override
     public String getFilename() {
-        return "keycloak.json";
+        return "keycloak-cas.txt";
     }
 
     @Override
     public String getMediaType() {
-        return MediaType.APPLICATION_JSON;
+        return MediaType.TEXT_PLAIN;
     }
 
 }
