@@ -19,4 +19,7 @@ org.keycloak.protocol.cas.mappers.FullNameMapper
 org.keycloak.protocol.cas.mappers.GroupMembershipMapper
 org.keycloak.protocol.cas.mappers.HardcodedClaim
 org.keycloak.protocol.cas.mappers.UserAttributeMapper
+org.keycloak.protocol.cas.mappers.UserClientRoleMappingMapper
 org.keycloak.protocol.cas.mappers.UserPropertyMapper
+org.keycloak.protocol.cas.mappers.UserRealmRoleMappingMapper
+org.keycloak.protocol.cas.mappers.UserSessionNoteMapper

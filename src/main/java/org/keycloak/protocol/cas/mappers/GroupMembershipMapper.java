@@ -4,19 +4,23 @@ import org.keycloak.models.GroupModel;
 import org.keycloak.models.ProtocolMapperModel;
 import org.keycloak.models.UserSessionModel;
 import org.keycloak.models.utils.ModelToRepresentation;
-import org.keycloak.protocol.cas.CASLoginProtocol;
 import org.keycloak.protocol.oidc.mappers.OIDCAttributeMapperHelper;
 import org.keycloak.provider.ProviderConfigProperty;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
 
 public class GroupMembershipMapper extends AbstractCASProtocolMapper {
     private static final List<ProviderConfigProperty> configProperties = new ArrayList<ProviderConfigProperty>();
 
+    private static final String FULL_PATH = "full.path";
+
     static {
         OIDCAttributeMapperHelper.addTokenClaimNameConfig(configProperties);
         ProviderConfigProperty property1 = new ProviderConfigProperty();
-        property1.setName("full.path");
+        property1.setName(FULL_PATH);
         property1.setLabel("Full group path");
         property1.setType(ProviderConfigProperty.BOOLEAN_TYPE);
         property1.setDefaultValue("true");
@@ -58,28 +62,18 @@ public class GroupMembershipMapper extends AbstractCASProtocolMapper {
                 membership.add(group.getName());
             }
         }
-        String protocolClaim = mappingModel.getConfig().get(OIDCAttributeMapperHelper.TOKEN_CLAIM_NAME);
-
-        attributes.put(protocolClaim, membership);
+        setPlainAttribute(attributes, mappingModel, membership);
     }
 
     public static boolean useFullPath(ProtocolMapperModel mappingModel) {
-        return "true".equals(mappingModel.getConfig().get("full.path"));
+        return "true".equals(mappingModel.getConfig().get(FULL_PATH));
     }
 
     public static ProtocolMapperModel create(String name, String tokenClaimName,
                                              boolean consentRequired, String consentText, boolean fullPath) {
-        ProtocolMapperModel mapper = new ProtocolMapperModel();
-        mapper.setName(name);
-        mapper.setProtocolMapper(PROVIDER_ID);
-        mapper.setProtocol(CASLoginProtocol.LOGIN_PROTOCOL);
-        mapper.setConsentRequired(consentRequired);
-        mapper.setConsentText(consentText);
-        Map<String, String> config = new HashMap<String, String>();
-        config.put(OIDCAttributeMapperHelper.TOKEN_CLAIM_NAME, tokenClaimName);
-        config.put("full.path", Boolean.toString(fullPath));
-        mapper.setConfig(config);
-
+        ProtocolMapperModel mapper = CASAttributeMapperHelper.createClaimMapper(name, tokenClaimName,
+                "String", consentRequired, consentText, PROVIDER_ID);
+        mapper.getConfig().put(FULL_PATH, Boolean.toString(fullPath));
         return mapper;
     }
 }

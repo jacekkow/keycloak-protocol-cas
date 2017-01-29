@@ -5,17 +5,12 @@ import org.keycloak.models.UserModel;
 import org.keycloak.models.UserSessionModel;
 import org.keycloak.models.utils.KeycloakModelUtils;
 import org.keycloak.protocol.ProtocolMapperUtils;
-import org.keycloak.protocol.cas.CASLoginProtocol;
 import org.keycloak.protocol.oidc.mappers.OIDCAttributeMapperHelper;
 import org.keycloak.provider.ProviderConfigProperty;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
-import static org.keycloak.protocol.oidc.mappers.OIDCAttributeMapperHelper.JSON_TYPE;
-import static org.keycloak.protocol.oidc.mappers.OIDCAttributeMapperHelper.TOKEN_CLAIM_NAME;
 
 public class UserAttributeMapper extends AbstractCASProtocolMapper {
     private static final List<ProviderConfigProperty> configProperties = new ArrayList<ProviderConfigProperty>();
@@ -66,33 +61,20 @@ public class UserAttributeMapper extends AbstractCASProtocolMapper {
     @Override
     public void setAttribute(Map<String, Object> attributes, ProtocolMapperModel mappingModel, UserSessionModel userSession) {
         UserModel user = userSession.getUser();
-        String protocolClaim = mappingModel.getConfig().get(TOKEN_CLAIM_NAME);
-        if (protocolClaim == null) {
-            return;
-        }
         String attributeName = mappingModel.getConfig().get(ProtocolMapperUtils.USER_ATTRIBUTE);
         List<String> attributeValue = KeycloakModelUtils.resolveAttribute(user, attributeName);
-        if (attributeValue == null) return;
-        attributes.put(protocolClaim, OIDCAttributeMapperHelper.mapAttributeValue(mappingModel, attributeValue));
+        setMappedAttribute(attributes, mappingModel, attributeValue);
     }
 
     public static ProtocolMapperModel create(String name, String userAttribute,
                                              String tokenClaimName, String claimType,
                                              boolean consentRequired, String consentText, boolean multivalued) {
-        ProtocolMapperModel mapper = new ProtocolMapperModel();
-        mapper.setName(name);
-        mapper.setProtocolMapper(PROVIDER_ID);
-        mapper.setProtocol(CASLoginProtocol.LOGIN_PROTOCOL);
-        mapper.setConsentRequired(consentRequired);
-        mapper.setConsentText(consentText);
-        Map<String, String> config = new HashMap<String, String>();
-        config.put(ProtocolMapperUtils.USER_ATTRIBUTE, userAttribute);
-        config.put(TOKEN_CLAIM_NAME, tokenClaimName);
-        config.put(JSON_TYPE, claimType);
+        ProtocolMapperModel mapper = CASAttributeMapperHelper.createClaimMapper(name, tokenClaimName,
+                claimType, consentRequired, consentText, PROVIDER_ID);
+        mapper.getConfig().put(ProtocolMapperUtils.USER_ATTRIBUTE, userAttribute);
         if (multivalued) {
             mapper.getConfig().put(ProtocolMapperUtils.MULTIVALUED, "true");
         }
-        mapper.setConfig(config);
         return mapper;
     }
 }

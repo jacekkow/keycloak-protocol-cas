@@ -54,13 +54,7 @@ public class HardcodedClaim extends AbstractCASProtocolMapper {
 
     @Override
     public void setAttribute(Map<String, Object> attributes, ProtocolMapperModel mappingModel, UserSessionModel userSession) {
-        String protocolClaim = mappingModel.getConfig().get(TOKEN_CLAIM_NAME);
-        if (protocolClaim == null) {
-            return;
-        }
-        String attributeValue = mappingModel.getConfig().get(CLAIM_VALUE);
-        if (attributeValue == null) return;
-        attributes.put(protocolClaim, OIDCAttributeMapperHelper.mapAttributeValue(mappingModel, attributeValue));
+        setMappedAttribute(attributes, mappingModel, mappingModel.getConfig().get(CLAIM_VALUE));
     }
 
 }
