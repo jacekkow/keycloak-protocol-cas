@@ -8,9 +8,9 @@ import org.keycloak.models.UserSessionModel;
 import org.keycloak.protocol.ProtocolMapper;
 import org.keycloak.protocol.cas.mappers.CASAttributeMapper;
 import org.keycloak.protocol.cas.representations.CasServiceResponse;
+import org.keycloak.protocol.cas.utils.CASValidationException;
 import org.keycloak.protocol.cas.utils.ContentTypeHelper;
 import org.keycloak.protocol.cas.utils.ServiceResponseHelper;
-import org.keycloak.services.ErrorResponseException;
 import org.keycloak.services.managers.ClientSessionCode;
 
 import javax.ws.rs.core.*;
@@ -45,9 +45,9 @@ public class ServiceValidateEndpoint extends ValidateEndpoint {
     }
 
     @Override
-    protected Response errorResponse(ErrorResponseException e) {
-        CasServiceResponse serviceResponse = ServiceResponseHelper.createFailure("CODE", "Description");
-        return prepare(Response.Status.FORBIDDEN, serviceResponse);
+    protected Response errorResponse(CASValidationException e) {
+        CasServiceResponse serviceResponse = ServiceResponseHelper.createFailure(e.getError(), e.getErrorDescription());
+        return prepare(e.getStatus(), serviceResponse);
     }
 
     private Response prepare(Response.Status status, CasServiceResponse serviceResponse) {

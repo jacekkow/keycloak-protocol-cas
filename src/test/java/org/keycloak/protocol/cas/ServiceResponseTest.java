@@ -1,6 +1,7 @@
 package org.keycloak.protocol.cas;
 
 import org.junit.Test;
+import org.keycloak.protocol.cas.representations.CASErrorCode;
 import org.keycloak.protocol.cas.representations.CasServiceResponse;
 import org.keycloak.protocol.cas.utils.ServiceResponseHelper;
 import org.keycloak.protocol.cas.utils.ServiceResponseMarshaller;
@@ -45,13 +46,13 @@ public class ServiceResponseTest {
     private static final String EXPECTED_JSON_FAILURE = "{\n" +
             "  \"serviceResponse\" : {\n" +
             "    \"authenticationFailure\" : {\n" +
-            "      \"code\" : \"ERROR_CODE\",\n" +
+            "      \"code\" : \"INVALID_REQUEST\",\n" +
             "      \"description\" : \"Error description\"\n" +
             "    }\n" +
             "  }\n" +
             "}";
     private static final String EXPECTED_XML_FAILURE = "<cas:serviceResponse xmlns:cas=\"http://www.yale.edu/tp/cas\">\n" +
-            "    <cas:authenticationFailure code=\"ERROR_CODE\">Error description</cas:authenticationFailure>\n" +
+            "    <cas:authenticationFailure code=\"INVALID_REQUEST\">Error description</cas:authenticationFailure>\n" +
             "</cas:serviceResponse>";
 
     @Test
@@ -70,7 +71,7 @@ public class ServiceResponseTest {
 
     @Test
     public void testErrorResponse() throws Exception {
-        CasServiceResponse response = ServiceResponseHelper.createFailure("ERROR_CODE", "Error description");
+        CasServiceResponse response = ServiceResponseHelper.createFailure(CASErrorCode.INVALID_REQUEST, "Error description");
 
         assertEquals(EXPECTED_JSON_FAILURE, ServiceResponseMarshaller.marshalJson(response));
         assertEquals(EXPECTED_XML_FAILURE, ServiceResponseMarshaller.marshalXml(response));

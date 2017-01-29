@@ -1,5 +1,6 @@
 package org.keycloak.protocol.cas.utils;
 
+import org.keycloak.protocol.cas.representations.CASErrorCode;
 import org.keycloak.protocol.cas.representations.CasServiceResponse;
 import org.keycloak.protocol.cas.representations.CasServiceResponseAuthenticationFailure;
 import org.keycloak.protocol.cas.representations.CasServiceResponseAuthenticationSuccess;
@@ -32,10 +33,10 @@ public final class ServiceResponseHelper {
         return response;
     }
 
-    public static CasServiceResponse createFailure(String errorCode, String errorDescription) {
+    public static CasServiceResponse createFailure(CASErrorCode errorCode, String errorDescription) {
         CasServiceResponse response = new CasServiceResponse();
         CasServiceResponseAuthenticationFailure failure = new CasServiceResponseAuthenticationFailure();
-        failure.setCode(errorCode);
+        failure.setCode(errorCode == null ? CASErrorCode.INTERNAL_ERROR.name() : errorCode.name());
         failure.setDescription(errorDescription);
         response.setAuthenticationFailure(failure);
 

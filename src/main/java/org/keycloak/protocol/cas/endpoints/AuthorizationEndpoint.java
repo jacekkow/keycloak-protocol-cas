@@ -84,11 +84,6 @@ public class AuthorizationEndpoint extends AuthorizationEndpointBase {
             throw new ErrorPageException(session, Messages.CLIENT_DISABLED);
         }
 
-        if (client.isBearerOnly()) {
-            event.error(Errors.NOT_ALLOWED);
-            throw new ErrorPageException(session, Messages.BEARER_ONLY);
-        }
-
         redirectUri = RedirectUtils.verifyRedirectUri(uriInfo, service, realm, client);
 
         event.client(client.getClientId());
