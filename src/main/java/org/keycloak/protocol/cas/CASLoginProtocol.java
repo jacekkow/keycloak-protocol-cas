@@ -1,19 +1,25 @@
 package org.keycloak.protocol.cas;
 
+import org.apache.http.HttpEntity;
+import org.jboss.logging.Logger;
 import org.keycloak.common.util.KeycloakUriBuilder;
 import org.keycloak.events.EventBuilder;
 import org.keycloak.events.EventType;
 import org.keycloak.models.*;
 import org.keycloak.protocol.LoginProtocol;
+import org.keycloak.protocol.cas.utils.LogoutHelper;
 import org.keycloak.services.managers.ClientSessionCode;
 import org.keycloak.services.managers.ResourceAdminManager;
 
 import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
+import java.io.IOException;
 import java.net.URI;
 
 public class CASLoginProtocol implements LoginProtocol {
+    private static final Logger logger = Logger.getLogger(CASLoginProtocol.class);
+
     public static final String LOGIN_PROTOCOL = "cas";
 
     public static final String SERVICE_PARAM = "service";
@@ -25,6 +31,7 @@ public class CASLoginProtocol implements LoginProtocol {
     public static final String TICKET_RESPONSE_PARAM = "ticket";
 
     public static final String SERVICE_TICKET_PREFIX = "ST-";
+    public static final String SESSION_SERVICE_TICKET = "service_ticket";
 
     protected KeycloakSession session;
     protected RealmModel realm;
@@ -96,8 +103,24 @@ public class CASLoginProtocol implements LoginProtocol {
 
     @Override
     public void backchannelLogout(UserSessionModel userSession, ClientSessionModel clientSession) {
+        String logoutUrl = clientSession.getRedirectUri();
+        String serviceTicket = clientSession.getNote(CASLoginProtocol.SESSION_SERVICE_TICKET);
+        //check if session is fully authenticated (i.e. serviceValidate has been called)
+        if (serviceTicket != null && !serviceTicket.isEmpty()) {
+            sendSingleLogoutRequest(logoutUrl, serviceTicket);
+        }
         ClientModel client = clientSession.getClient();
         new ResourceAdminManager(session).logoutClientSession(uriInfo.getRequestUri(), realm, client, clientSession);
+    }
+
+    private void sendSingleLogoutRequest(String logoutUrl, String serviceTicket) {
+        HttpEntity requestEntity = LogoutHelper.buildSingleLogoutRequest(serviceTicket);
+        try {
+            LogoutHelper.postWithRedirect(session, logoutUrl, requestEntity);
+            logger.debug("Sent CAS single logout for service " + logoutUrl);
+        } catch (IOException e) {
+            logger.warn("Failed to call CAS service for logout: " + logoutUrl, e);
+        }
     }
 
     @Override

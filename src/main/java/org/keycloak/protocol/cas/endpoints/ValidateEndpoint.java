@@ -20,7 +20,7 @@ import javax.ws.rs.GET;
 import javax.ws.rs.core.*;
 
 public class ValidateEndpoint {
-    protected static final Logger logger = Logger.getLogger(org.keycloak.protocol.oidc.endpoints.LogoutEndpoint.class);
+    protected static final Logger logger = Logger.getLogger(ValidateEndpoint.class);
 
     private static final String RESPONSE_OK = "yes\n";
     private static final String RESPONSE_FAILED = "no\n";
@@ -152,6 +152,7 @@ public class ValidateEndpoint {
             throw new CASValidationException(CASErrorCode.INVALID_TICKET, "Code is expired", Response.Status.BAD_REQUEST);
         }
 
+        clientSession.setNote(CASLoginProtocol.SESSION_SERVICE_TICKET, ticket);
         parseResult.getCode().setAction(null);
 
         if (requireReauth && AuthenticationManager.isSSOAuthentication(clientSession)) {

@@ -18,7 +18,7 @@ import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
 
 public class LogoutEndpoint {
-    private static final Logger logger = Logger.getLogger(org.keycloak.protocol.oidc.endpoints.LogoutEndpoint.class);
+    private static final Logger logger = Logger.getLogger(LogoutEndpoint.class);
 
     @Context
     private KeycloakSession session;
