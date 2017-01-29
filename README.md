@@ -1,14 +1,17 @@
 # keycloak-protocol-cas
 This plugin for Keycloak Identity and Access Management (http://www.keycloak.org) adds the CAS 3.0 SSO protocol as an available client protocol to the Keycloak system. It implements the required Service Provider Interfaces (SPIs) for a Login Protocol and will be picked up and made available by Keycloak automatically once installed.
 
+[![Build Status](https://travis-ci.org/Doccrazy/keycloak-protocol-cas.svg?branch=master)](https://travis-ci.org/Doccrazy/keycloak-protocol-cas)
+
 ## Features
 The following CAS features are currently implemented:
 * CAS 1.0/2.0/3.0 compliant Login/Logout and Service Ticket Validation
+* Single Logout (SLO)
 * Filtering of provided `service` against configured redirect URIs
 * JSON and XML response types
 * Mapping of custom user attributes to CAS assertion attributes
 
-The following features are **curently missing**:
+The following features are **currently missing**:
 * Proxy ticket service and proxy ticket validation [CAS 2.0]
 * Long-Term Tickets - Remember-Me [CAS 3.0 - optional]
 * SAML request/response [CAS 3.0 - optional]

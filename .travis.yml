@@ -1,0 +1,23 @@
+language: java
+
+cache:
+  directories:
+  - "$HOME/.m2"
+
+jdk:
+- oraclejdk8
+
+sudo: false
+
+before_deploy:
+  - "mvn -DskipTests package"
+  - export RELEASE_JAR=$(ls target/keycloak-protocol-cas-*.jar)
+
+deploy:
+  provider: releases
+  api_key:
+    secure: BPcU12jQ4qs1xAq+Y+6bax+g1AdLatg5E645ISr/NLaKDuWNZxzpMLPf/w9+ngvV5ap5qTz8neoeEbVCLncaIT8wBqlaZnaSnFvVS1huUnwqbh8DzzC6Fmh8DoREpoGo/LV+He1N76bd/lpu0f8VoEqZDtgNYyPAn3xNif+tng8Xa1yh55PqaxB5XlXrArouKCv4jPf+AqzQUMr40Xgn/aQxra6H8PZiEJnxXtweC+UyMNGs5VZkm6nOUW/cpSBppEl6BxyLzJrM2b2pAXQSb85f2EBAIwN38PipwSdckC/3AIhI5Skrx9fEeiuW/YzsZKl7XTohn45fzirc6EzsGBvLucsIda+qMp6Zf4sd8uM0XgiQ1NJyOxWFVFyg3JP00OmJW4BgumfZTL4lzcDUVhn5DubgqZZM3sqvoz75MUSBYewTo3hLBlqxjVA8qe8S738mlNVcpDjwAuAM7/2UP+hcypnjKttQBFt965+yfxjSs3B+KLRQLp7UTmQ+fTcEr72AenQFoXuVpO0k6ghKYomNLLFOzlLk2JCWtsVirjWzJQTZKP5m23jf4qbfyDM3HDenL+N8l3ZOups9gtGpioxkUGKz2IPHrz7XTwh10OpZi32jOPS2BfFOXUQMNVlZAfbIAwXnbo2DWC0AB2Fz//bJbjF9TnOGTUIODos6joo=
+  file: "${RELEASE_JAR}"
+  on:
+    tags: true
+    repo: Doccrazy/keycloak-protocol-cas
