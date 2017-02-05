@@ -12,9 +12,11 @@ The following CAS features are currently implemented:
 * Mapping of custom user attributes to CAS assertion attributes
 
 The following features are **currently missing**:
-* Proxy ticket service and proxy ticket validation [CAS 2.0]
+* #2: Proxy ticket service and proxy ticket validation [CAS 2.0]
+* #1: SAML request/response [CAS 3.0 - optional]
+
+The following features are out of scope:
 * Long-Term Tickets - Remember-Me [CAS 3.0 - optional]
-* SAML request/response [CAS 3.0 - optional]
 
 ## Installation
 1. Clone or download this repository (pre-compiled releases will follow!)
