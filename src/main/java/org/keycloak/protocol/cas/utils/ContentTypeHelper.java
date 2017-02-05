@@ -19,7 +19,8 @@ public class ContentTypeHelper {
     public MediaType selectResponseType() {
         String format = uriInfo.getQueryParameters().getFirst(CASLoginProtocol.FORMAT_PARAM);
         if (format != null && !format.isEmpty()) {
-            request.getMutableHeaders().add(HttpHeaders.ACCEPT, "application/" + format);
+            //if parameter is set, it overrides all header values (see spec section 2.5.1)
+            request.getMutableHeaders().putSingle(HttpHeaders.ACCEPT, "application/" + format.toLowerCase());
         }
         Variant variant = restRequest.selectVariant(Variant.mediaTypes(MediaType.APPLICATION_XML_TYPE, MediaType.APPLICATION_JSON_TYPE).build());
         return variant == null ? MediaType.APPLICATION_XML_TYPE : variant.getMediaType();
