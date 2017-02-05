@@ -69,12 +69,13 @@ public class CASLoginProtocolService {
 
     @Path("proxyValidate")
     public Object proxyValidate() {
-        return null;
+        //TODO implement
+        return serviceValidate();
     }
 
     @Path("proxy")
     public Object proxy() {
-        return null;
+        return Response.serverError().entity("Not implemented").build();
     }
 
     @Path("p3/serviceValidate")
