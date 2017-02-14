@@ -29,6 +29,7 @@ public class ContentTypeHelperTest {
         assertEquals(MediaType.APPLICATION_XML_TYPE, get("http://example.com/?format=xml", MediaType.APPLICATION_JSON).selectResponseType());
 
         assertEquals(MediaType.APPLICATION_XML_TYPE, get("http://example.com/", MediaType.TEXT_PLAIN).selectResponseType());
+        assertEquals(MediaType.APPLICATION_XML_TYPE, get("http://example.com/", "text/html, image/gif, image/jpeg, *; q=.2, */*; q=.2").selectResponseType());
     }
 
     private ContentTypeHelper get(String uri, String acceptHeader) throws Exception {
