@@ -21,8 +21,8 @@ The following features are out of scope:
 ## Installation
 1. Clone or download this repository (pre-compiled releases will follow!)
 2. Run `mvn package` to build the plugin JAR
-3. Copy the JAR file generated in the `target` folder into the `providers` directory in your Keycloak server's root
-4. Restart Keycloak
+3. Copy the JAR file generated in the `target` folder into the `standalone/deployments` directory in your Keycloak server's root
+4. Restart Keycloak (optional, hot deployment should work)
 
 ## Configuration
 To use the new protocol, you have to create a client within Keycloak as usual.  
