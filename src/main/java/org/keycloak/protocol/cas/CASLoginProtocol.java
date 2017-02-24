@@ -5,6 +5,7 @@ import org.jboss.logging.Logger;
 import org.keycloak.common.util.KeycloakUriBuilder;
 import org.keycloak.events.EventBuilder;
 import org.keycloak.events.EventType;
+import org.keycloak.forms.login.LoginFormsProvider;
 import org.keycloak.models.*;
 import org.keycloak.protocol.LoginProtocol;
 import org.keycloak.protocol.cas.utils.LogoutHelper;
@@ -32,6 +33,8 @@ public class CASLoginProtocol implements LoginProtocol {
 
     public static final String SERVICE_TICKET_PREFIX = "ST-";
     public static final String SESSION_SERVICE_TICKET = "service_ticket";
+
+    public static final String LOGOUT_REDIRECT_URI = "CAS_LOGOUT_REDIRECT_URI";
 
     protected KeycloakSession session;
     protected RealmModel realm;
@@ -131,9 +134,17 @@ public class CASLoginProtocol implements LoginProtocol {
 
     @Override
     public Response finishLogout(UserSessionModel userSession) {
+        String redirectUri = userSession.getNote(CASLoginProtocol.LOGOUT_REDIRECT_URI);
+
         event.event(EventType.LOGOUT);
         event.user(userSession.getUser()).session(userSession).success();
-        return Response.ok().build();
+        LoginFormsProvider infoPage = session.getProvider(LoginFormsProvider.class).setSuccess("Logout successful");
+        if (redirectUri != null) {
+            infoPage.setAttribute("pageRedirectUri", redirectUri);
+        } else {
+            infoPage.setAttribute("skipLink", true);
+        }
+        return infoPage.createInfoPage();
     }
 
     @Override
