@@ -7,7 +7,33 @@ cache:
 jdk:
 - oraclejdk8
 
-sudo: false
+sudo: required
+
+services:
+  - docker
+
+env:
+  - KEYCLOAK_VERSION=2.5.5.Final
+  - KEYCLOAK_VERSION=3.0.0.Final
+  - KEYCLOAK_VERSION=3.1.0.Final
+#  - KEYCLOAK_VERSION=3.2.0.Final
+
+before_install:
+  - docker pull jboss/keycloak:$KEYCLOAK_VERSION
+
+script:
+  - mvn test package -B &&
+    mkdir target/docker &&
+    cp target/*.jar target/docker/keycloak-protocol-cas.jar &&
+    echo "FROM jboss/keycloak:$KEYCLOAK_VERSION" > target/docker/Dockerfile &&
+    echo "ADD keycloak-protocol-cas.jar /opt/jboss/keycloak/standalone/deployments/" >> target/docker/Dockerfile &&
+    cd target/docker && docker build -t doccrazy/keycloak-cas . && cd ../.. &&
+    docker run -d -p 127.0.0.1:8080:8080 --name keycloak -e KEYCLOAK_USER=admin -e KEYCLOAK_PASSWORD=admin doccrazy/keycloak-cas && sleep 30 &&
+    docker logs keycloak &&
+    docker exec -t keycloak /opt/jboss/keycloak/bin/kcadm.sh config credentials --server http://localhost:8080/auth --realm master --user admin --password admin &&
+    docker exec -t keycloak /opt/jboss/keycloak/bin/kcadm.sh create clients -r master -s clientId=test -s protocol=cas -s enabled=true -s publicClient=true -s 'redirectUris=["http://localhost/*"]' -s baseUrl=http://localhost -s adminUrl=http://localhost &&
+    docker exec -t keycloak /opt/jboss/keycloak/bin/kcadm.sh get serverinfo -r master --fields "providers(login-protocol(providers(cas)))" | grep cas &&
+    curl --fail http://localhost:8080/auth/realms/master/protocol/cas/login?service=http://localhost
 
 before_deploy:
   - "mvn -DskipTests package"
@@ -18,6 +44,7 @@ deploy:
   api_key:
     secure: BPcU12jQ4qs1xAq+Y+6bax+g1AdLatg5E645ISr/NLaKDuWNZxzpMLPf/w9+ngvV5ap5qTz8neoeEbVCLncaIT8wBqlaZnaSnFvVS1huUnwqbh8DzzC6Fmh8DoREpoGo/LV+He1N76bd/lpu0f8VoEqZDtgNYyPAn3xNif+tng8Xa1yh55PqaxB5XlXrArouKCv4jPf+AqzQUMr40Xgn/aQxra6H8PZiEJnxXtweC+UyMNGs5VZkm6nOUW/cpSBppEl6BxyLzJrM2b2pAXQSb85f2EBAIwN38PipwSdckC/3AIhI5Skrx9fEeiuW/YzsZKl7XTohn45fzirc6EzsGBvLucsIda+qMp6Zf4sd8uM0XgiQ1NJyOxWFVFyg3JP00OmJW4BgumfZTL4lzcDUVhn5DubgqZZM3sqvoz75MUSBYewTo3hLBlqxjVA8qe8S738mlNVcpDjwAuAM7/2UP+hcypnjKttQBFt965+yfxjSs3B+KLRQLp7UTmQ+fTcEr72AenQFoXuVpO0k6ghKYomNLLFOzlLk2JCWtsVirjWzJQTZKP5m23jf4qbfyDM3HDenL+N8l3ZOups9gtGpioxkUGKz2IPHrz7XTwh10OpZi32jOPS2BfFOXUQMNVlZAfbIAwXnbo2DWC0AB2Fz//bJbjF9TnOGTUIODos6joo=
   file: "${RELEASE_JAR}"
+  skip_cleanup: true
   on:
     tags: true
     repo: Doccrazy/keycloak-protocol-cas
