@@ -33,7 +33,7 @@ script:
     docker exec -t keycloak /opt/jboss/keycloak/bin/kcadm.sh config credentials --server http://localhost:8080/auth --realm master --user admin --password admin &&
     docker exec -t keycloak /opt/jboss/keycloak/bin/kcadm.sh create clients -r master -s clientId=test -s protocol=cas -s enabled=true -s publicClient=true -s 'redirectUris=["http://localhost/*"]' -s baseUrl=http://localhost -s adminUrl=http://localhost &&
     docker exec -t keycloak /opt/jboss/keycloak/bin/kcadm.sh get serverinfo -r master --fields "providers(login-protocol(providers(cas)))" | grep cas &&
-    curl --fail http://localhost:8080/auth/realms/master/protocol/cas/login?service=http://localhost
+    integrationTest/suite.sh
 
 before_deploy:
   - "mvn -DskipTests package"
