@@ -43,7 +43,7 @@ public class ValidateEndpoint {
     protected RealmModel realm;
     protected EventBuilder event;
     protected ClientModel client;
-    protected ClientSessionModel clientSession;
+    protected AuthenticatedClientSessionModel clientSession;
 
     public ValidateEndpoint(RealmModel realm, EventBuilder event) {
         this.realm = realm;
@@ -131,23 +131,27 @@ public class ValidateEndpoint {
 
         String code = ticket.substring(CASLoginProtocol.SERVICE_TICKET_PREFIX.length());
 
-        ClientSessionCode.ParseResult parseResult = ClientSessionCode.parseResult(code, session, realm);
-        if (parseResult.isClientSessionNotFound() || parseResult.isIllegalHash()) {
-            String[] parts = code.split("\\.");
-            if (parts.length == 2) {
-                event.detail(Details.CODE_ID, parts[1]);
-            }
+        String[] parts = code.split("\\.");
+        if (parts.length == 4) {
+            event.detail(Details.CODE_ID, parts[2]);
+        }
+
+        ClientSessionCode.ParseResult<AuthenticatedClientSessionModel> parseResult = ClientSessionCode.parseResult(code, session, realm, AuthenticatedClientSessionModel.class);
+        if (parseResult.isAuthSessionNotFound() || parseResult.isIllegalHash()) {
             event.error(Errors.INVALID_CODE);
-            if (parseResult.getClientSession() != null) {
-                session.sessions().removeClientSession(realm, parseResult.getClientSession());
+
+            // Attempt to use same code twice should invalidate existing clientSession
+            AuthenticatedClientSessionModel clientSession = parseResult.getClientSession();
+            if (clientSession != null) {
+                clientSession.setUserSession(null);
             }
+
             throw new CASValidationException(CASErrorCode.INVALID_TICKET, "Code not valid", Response.Status.BAD_REQUEST);
         }
 
         clientSession = parseResult.getClientSession();
-        event.detail(Details.CODE_ID, clientSession.getId());
 
-        if (!parseResult.getCode().isValid(ClientSessionModel.Action.CODE_TO_TOKEN.name(), ClientSessionCode.ActionType.CLIENT)) {
+        if (!parseResult.getCode().isValid(AuthenticatedClientSessionModel.Action.CODE_TO_TOKEN.name(), ClientSessionCode.ActionType.CLIENT)) {
             event.error(Errors.INVALID_CODE);
             throw new CASValidationException(CASErrorCode.INVALID_TICKET, "Code is expired", Response.Status.BAD_REQUEST);
         }

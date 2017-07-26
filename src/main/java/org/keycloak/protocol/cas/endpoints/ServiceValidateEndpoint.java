@@ -30,7 +30,7 @@ public class ServiceValidateEndpoint extends ValidateEndpoint {
     protected Response successResponse() {
         UserSessionModel userSession = clientSession.getUserSession();
 
-        Set<ProtocolMapperModel> mappings = new ClientSessionCode(session, realm, clientSession).getRequestedProtocolMappers();
+        Set<ProtocolMapperModel> mappings = new ClientSessionCode<>(session, realm, clientSession).getRequestedProtocolMappers();
         KeycloakSessionFactory sessionFactory = session.getKeycloakSessionFactory();
         Map<String, Object> attributes = new HashMap<>();
         for (ProtocolMapperModel mapping : mappings) {

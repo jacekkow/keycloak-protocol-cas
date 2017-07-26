@@ -11,6 +11,8 @@ import org.keycloak.protocol.LoginProtocol;
 import org.keycloak.protocol.cas.utils.LogoutHelper;
 import org.keycloak.services.managers.ClientSessionCode;
 import org.keycloak.services.managers.ResourceAdminManager;
+import org.keycloak.sessions.AuthenticationSessionModel;
+import org.keycloak.sessions.CommonClientSessionModel;
 
 import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.Response;
@@ -84,12 +86,12 @@ public class CASLoginProtocol implements LoginProtocol {
     }
 
     @Override
-    public Response authenticated(UserSessionModel userSession, ClientSessionCode accessCode) {
-        ClientSessionModel clientSession = accessCode.getClientSession();
+    public Response authenticated(UserSessionModel userSession, AuthenticatedClientSessionModel clientSession) {
+        ClientSessionCode<AuthenticatedClientSessionModel> accessCode = new ClientSessionCode<>(session, realm, clientSession);
 
         String service = clientSession.getRedirectUri();
         //TODO validate service
-        accessCode.setAction(ClientSessionModel.Action.CODE_TO_TOKEN.name());
+        accessCode.setAction(CommonClientSessionModel.Action.CODE_TO_TOKEN.name());
         KeycloakUriBuilder uriBuilder = KeycloakUriBuilder.fromUri(service);
         uriBuilder.queryParam(TICKET_RESPONSE_PARAM, SERVICE_TICKET_PREFIX + accessCode.getCode());
 
@@ -100,12 +102,12 @@ public class CASLoginProtocol implements LoginProtocol {
     }
 
     @Override
-    public Response sendError(ClientSessionModel clientSession, Error error) {
+    public Response sendError(AuthenticationSessionModel authSession, Error error) {
         return Response.serverError().entity(error).build();
     }
 
     @Override
-    public void backchannelLogout(UserSessionModel userSession, ClientSessionModel clientSession) {
+    public void backchannelLogout(UserSessionModel userSession, AuthenticatedClientSessionModel clientSession) {
         String logoutUrl = clientSession.getRedirectUri();
         String serviceTicket = clientSession.getNote(CASLoginProtocol.SESSION_SERVICE_TICKET);
         //check if session is fully authenticated (i.e. serviceValidate has been called)
@@ -127,7 +129,7 @@ public class CASLoginProtocol implements LoginProtocol {
     }
 
     @Override
-    public Response frontchannelLogout(UserSessionModel userSession, ClientSessionModel clientSession) {
+    public Response frontchannelLogout(UserSessionModel userSession, AuthenticatedClientSessionModel clientSession) {
         // todo oidc redirect support
         throw new RuntimeException("NOT IMPLEMENTED");
     }
@@ -148,8 +150,8 @@ public class CASLoginProtocol implements LoginProtocol {
     }
 
     @Override
-    public boolean requireReauthentication(UserSessionModel userSession, ClientSessionModel clientSession) {
-        return "true".equals(clientSession.getNote(CASLoginProtocol.RENEW_PARAM));
+    public boolean requireReauthentication(UserSessionModel userSession, AuthenticationSessionModel authSession) {
+        return "true".equals(authSession.getClientNote(CASLoginProtocol.RENEW_PARAM));
     }
 
     @Override

@@ -6,7 +6,6 @@ import org.keycloak.events.Errors;
 import org.keycloak.events.EventBuilder;
 import org.keycloak.events.EventType;
 import org.keycloak.models.ClientModel;
-import org.keycloak.models.ClientSessionModel;
 import org.keycloak.models.RealmModel;
 import org.keycloak.protocol.AuthorizationEndpointBase;
 import org.keycloak.protocol.cas.CASLoginProtocol;
@@ -14,6 +13,7 @@ import org.keycloak.protocol.oidc.utils.RedirectUtils;
 import org.keycloak.services.ErrorPageException;
 import org.keycloak.services.messages.Messages;
 import org.keycloak.services.util.CacheControlUtil;
+import org.keycloak.sessions.AuthenticationSessionModel;
 
 import javax.ws.rs.GET;
 import javax.ws.rs.core.MultivaluedMap;
@@ -23,7 +23,7 @@ public class AuthorizationEndpoint extends AuthorizationEndpointBase {
     private static final Logger logger = Logger.getLogger(AuthorizationEndpoint.class);
 
     private ClientModel client;
-    private ClientSessionModel clientSession;
+    private AuthenticationSessionModel authenticationSession;
     private String redirectUri;
 
     public AuthorizationEndpoint(RealmModel realm, EventBuilder event) {
@@ -42,30 +42,23 @@ public class AuthorizationEndpoint extends AuthorizationEndpointBase {
         checkRealm();
         checkClient(service);
 
-        createClientSession();
+        AuthorizationEndpointChecks checks = getOrCreateAuthenticationSession(client, null);
+        if (checks.response != null) {
+            return checks.response;
+        }
+
+        authenticationSession = checks.authSession;
+        updateAuthenticationSession();
+
         // So back button doesn't work
         CacheControlUtil.noBackButtonCacheControlHeader();
 
         if (renew) {
-            clientSession.setNote(CASLoginProtocol.RENEW_PARAM, "true");
+            authenticationSession.setClientNote(CASLoginProtocol.RENEW_PARAM, "true");
         }
 
         this.event.event(EventType.LOGIN);
-        return handleBrowserAuthenticationRequest(clientSession, new CASLoginProtocol(session, realm, uriInfo, headers, event), gateway, false);
-    }
-
-    private void checkSsl() {
-        if (!uriInfo.getBaseUri().getScheme().equals("https") && realm.getSslRequired().isRequired(clientConnection)) {
-            event.error(Errors.SSL_REQUIRED);
-            throw new ErrorPageException(session, Messages.HTTPS_REQUIRED);
-        }
-    }
-
-    private void checkRealm() {
-        if (!realm.isEnabled()) {
-            event.error(Errors.REALM_DISABLED);
-            throw new ErrorPageException(session, Messages.REALM_NOT_ENABLED);
-        }
+        return handleBrowserAuthenticationRequest(authenticationSession, new CASLoginProtocol(session, realm, uriInfo, headers, event), gateway, false);
     }
 
     private void checkClient(String service) {
@@ -96,10 +89,14 @@ public class AuthorizationEndpoint extends AuthorizationEndpointBase {
         session.getContext().setClient(client);
     }
 
-    private void createClientSession() {
-        clientSession = session.sessions().createClientSession(realm, client);
-        clientSession.setAuthMethod(CASLoginProtocol.LOGIN_PROTOCOL);
-        clientSession.setRedirectUri(redirectUri);
-        clientSession.setAction(ClientSessionModel.Action.AUTHENTICATE.name());
+    private void updateAuthenticationSession() {
+        authenticationSession.setProtocol(CASLoginProtocol.LOGIN_PROTOCOL);
+        authenticationSession.setRedirectUri(redirectUri);
+        authenticationSession.setAction(AuthenticationSessionModel.Action.AUTHENTICATE.name());
+    }
+
+    @Override
+    protected boolean isNewRequest(AuthenticationSessionModel authSession, ClientModel clientFromRequest, String requestState) {
+        return true;
     }
 }
