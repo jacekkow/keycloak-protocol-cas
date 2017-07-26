@@ -19,14 +19,20 @@ The following features are out of scope:
 * Long-Term Tickets - Remember-Me [CAS 3.0 - optional]
 
 ## Installation
-1. Clone or download this repository (pre-compiled releases will follow!)
-2. Run `mvn package` to build the plugin JAR
-3. Copy the JAR file generated in the `target` folder into the `standalone/deployments` directory in your Keycloak server's root
-4. Restart Keycloak (optional, hot deployment should work)
+The CAS plugin has been tested against the following Keycloak versions. Please ensure your version is compatible before deploying.  
+Please report test results with other versions!
+
+Plugin version | Keycloak 2.5.x | Keycloak 3.0.x | Keycloak 3.1.x | Keycloak 3.2.x
+------------ | ------------- | ------------- | ------------- | -------------
+1.0.0 |  :white_check_mark: |  :white_check_mark: |  :white_check_mark: |  :x:
+
+1. Download the latest release compatible with your Keycloak version from the [releases page](https://github.com/Doccrazy/keycloak-protocol-cas/releases)
+2. Copy the JAR file into the `standalone/deployments` directory in your Keycloak server's root
+3. Restart Keycloak (optional, hot deployment should work)
 
 ## Configuration
 To use the new protocol, you have to create a client within Keycloak as usual.  
-**Important: Due to [KEYCLOAK-4270](https://issues.jboss.org/browse/KEYCLOAK-4270), you have to select the `openid-connect` protocol when creating the client and change it after saving.**  
+**Important: Due to [KEYCLOAK-4270](https://issues.jboss.org/browse/KEYCLOAK-4270), you may have to select the `openid-connect` protocol when creating the client and change it after saving. This has been fixed in Keycloak 3.0.0.**  
 As the CAS protocol does not transmit a client ID, the client will be identified by the redirect URIs (mapped to CAS service). No further configuration is necessary.
 
 Enter `https://your.keycloak.host/auth/realms/master/protocol/cas` as the CAS URL into your SP.
