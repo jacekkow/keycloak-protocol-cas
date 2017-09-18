@@ -17,6 +17,7 @@ env:
 #  - KEYCLOAK_VERSION=3.0.0.Final
 #  - KEYCLOAK_VERSION=3.1.0.Final
   - KEYCLOAK_VERSION=3.2.1.Final
+  - KEYCLOAK_VERSION=3.3.0.CR2
 
 before_install:
   - docker pull jboss/keycloak:$KEYCLOAK_VERSION
