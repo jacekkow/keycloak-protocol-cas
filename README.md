@@ -22,9 +22,10 @@ The following features are out of scope:
 The CAS plugin has been tested against the following Keycloak versions. Please ensure your version is compatible before deploying.  
 Please report test results with other versions!
 
-Plugin version | Keycloak 2.5.x | Keycloak 3.0.x | Keycloak 3.1.x | Keycloak 3.2.x
------------- | ------------- | ------------- | ------------- | -------------
-1.0.0 |  :white_check_mark: |  :white_check_mark: |  :white_check_mark: |  :x:
+Plugin version | Keycloak 2.5.x | Keycloak 3.0.x | Keycloak 3.1.x | Keycloak 3.2.x | Keycloak 3.3.x | Keycloak 3.4.x
+------------ | ------------- | ------------- | ------------- | ------------- | ------------- | -------------
+1.x |  :white_check_mark: |  :white_check_mark: |  :white_check_mark: |  :x: |  :x: |  :x:
+2.x |  :x: |  :x: |  :x: |  :white_check_mark: | :white_check_mark: | :white_check_mark:
 
 1. Download the latest release compatible with your Keycloak version from the [releases page](https://github.com/Doccrazy/keycloak-protocol-cas/releases)
 2. Copy the JAR file into the `standalone/deployments` directory in your Keycloak server's root
