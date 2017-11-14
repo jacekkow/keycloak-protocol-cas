@@ -18,6 +18,7 @@ import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
 import java.io.IOException;
+import java.lang.reflect.Method;
 import java.net.URI;
 
 public class CASLoginProtocol implements LoginProtocol {
@@ -91,9 +92,19 @@ public class CASLoginProtocol implements LoginProtocol {
 
         String service = clientSession.getRedirectUri();
         //TODO validate service
-        accessCode.setAction(CommonClientSessionModel.Action.CODE_TO_TOKEN.name());
+
+        String code;
+        try {
+            // Keycloak >3.4 branch: Method getCode was renamed to getOrGenerateCode, CODE_TO_TOKEN was removed
+            Method getOrGenerateCode = ClientSessionCode.class.getMethod("getOrGenerateCode");
+            code = (String) getOrGenerateCode.invoke(accessCode);
+        } catch (ReflectiveOperationException e) {
+            // Keycloak <=3.3 branch
+            accessCode.setAction(CommonClientSessionModel.Action.CODE_TO_TOKEN.name());
+            code = accessCode.getCode();
+        }
         KeycloakUriBuilder uriBuilder = KeycloakUriBuilder.fromUri(service);
-        uriBuilder.queryParam(TICKET_RESPONSE_PARAM, SERVICE_TICKET_PREFIX + accessCode.getCode());
+        uriBuilder.queryParam(TICKET_RESPONSE_PARAM, SERVICE_TICKET_PREFIX + code);
 
         URI redirectUri = uriBuilder.build();
 

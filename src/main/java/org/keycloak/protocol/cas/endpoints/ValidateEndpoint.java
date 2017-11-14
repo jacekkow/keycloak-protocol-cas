@@ -18,6 +18,7 @@ import org.keycloak.services.managers.ClientSessionCode;
 
 import javax.ws.rs.GET;
 import javax.ws.rs.core.*;
+import java.lang.reflect.Method;
 
 public class ValidateEndpoint {
     protected static final Logger logger = Logger.getLogger(ValidateEndpoint.class);
@@ -136,7 +137,17 @@ public class ValidateEndpoint {
             event.detail(Details.CODE_ID, parts[2]);
         }
 
-        ClientSessionCode.ParseResult<AuthenticatedClientSessionModel> parseResult = ClientSessionCode.parseResult(code, session, realm, AuthenticatedClientSessionModel.class);
+        ClientSessionCode.ParseResult<AuthenticatedClientSessionModel> parseResult;
+        try {
+            // Keycloak >3.4 branch: Parameter event was added to ClientSessionCode.parseResult
+            Method parseResultMethod = ClientSessionCode.class.getMethod("parseResult",
+                    String.class, KeycloakSession.class, RealmModel.class, EventBuilder.class, Class.class);
+            parseResult = (ClientSessionCode.ParseResult<AuthenticatedClientSessionModel>) parseResultMethod.invoke(
+                    null, code, session, realm, event, AuthenticatedClientSessionModel.class);
+        } catch (ReflectiveOperationException e) {
+            // Keycloak <=3.3 branch
+            parseResult = ClientSessionCode.parseResult(code, session, realm, AuthenticatedClientSessionModel.class);
+        }
         if (parseResult.isAuthSessionNotFound() || parseResult.isIllegalHash()) {
             event.error(Errors.INVALID_CODE);
 
@@ -151,13 +162,24 @@ public class ValidateEndpoint {
 
         clientSession = parseResult.getClientSession();
 
-        if (!parseResult.getCode().isValid(AuthenticatedClientSessionModel.Action.CODE_TO_TOKEN.name(), ClientSessionCode.ActionType.CLIENT)) {
-            event.error(Errors.INVALID_CODE);
-            throw new CASValidationException(CASErrorCode.INVALID_TICKET, "Code is expired", Response.Status.BAD_REQUEST);
+        try {
+            // Keycloak >3.4 branch: Method isExpiredToken was added
+            Method isExpiredToken = ClientSessionCode.ParseResult.class.getMethod("isExpiredToken");
+            if ((Boolean) isExpiredToken.invoke(parseResult)) {
+                event.error(Errors.EXPIRED_CODE);
+                throw new CASValidationException(CASErrorCode.INVALID_TICKET, "Code is expired", Response.Status.BAD_REQUEST);
+            }
+        } catch (ReflectiveOperationException e) {
+            // Keycloak <=3.3 branch
+            if (!parseResult.getCode().isValid(AuthenticatedClientSessionModel.Action.CODE_TO_TOKEN.name(), ClientSessionCode.ActionType.CLIENT)) {
+                event.error(Errors.INVALID_CODE);
+                throw new CASValidationException(CASErrorCode.INVALID_TICKET, "Code is expired", Response.Status.BAD_REQUEST);
+            }
+
+            parseResult.getCode().setAction(null);
         }
 
         clientSession.setNote(CASLoginProtocol.SESSION_SERVICE_TICKET, ticket);
-        parseResult.getCode().setAction(null);
 
         if (requireReauth && AuthenticationManager.isSSOAuthentication(clientSession)) {
             event.error(Errors.SESSION_EXPIRED);
