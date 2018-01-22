@@ -8,15 +8,14 @@ import org.apache.http.entity.ContentType;
 import org.apache.http.entity.StringEntity;
 import org.keycloak.connections.httpclient.HttpClientProvider;
 import org.keycloak.models.KeycloakSession;
-import org.keycloak.saml.common.exceptions.ConfigurationException;
-import org.keycloak.saml.processing.core.saml.v2.common.IDGenerator;
-import org.keycloak.saml.processing.core.saml.v2.util.XMLTimeUtil;
 
 import javax.ws.rs.core.HttpHeaders;
-import javax.xml.datatype.XMLGregorianCalendar;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.UUID;
 
 public class LogoutHelper {
     //although it looks alike, the CAS SLO protocol has nothing to do with SAML; so we build the format
@@ -27,14 +26,9 @@ public class LogoutHelper {
             "</samlp:LogoutRequest>";
 
     public static HttpEntity buildSingleLogoutRequest(String serviceTicket) {
-        String id = IDGenerator.create("ID_");
-        XMLGregorianCalendar issueInstant;
-        try {
-            issueInstant = XMLTimeUtil.getIssueInstant();
-        } catch (ConfigurationException e) {
-            throw new RuntimeException(e);
-        }
-        String document = TEMPLATE.replace("$ID", id).replace("$ISSUE_INSTANT", issueInstant.toString())
+        String id = "ID_" + UUID.randomUUID().toString();
+        String issueInstant = new SimpleDateFormat("yyyy-MM-dd'T'H:mm:ss").format(new Date());
+        String document = TEMPLATE.replace("$ID", id).replace("$ISSUE_INSTANT", issueInstant)
                 .replace("$SESSION_IDENTIFIER", serviceTicket);
         return new StringEntity(document, ContentType.APPLICATION_XML.withCharset(StandardCharsets.UTF_8));
     }
