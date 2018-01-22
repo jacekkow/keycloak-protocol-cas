@@ -12,20 +12,22 @@ The following CAS features are currently implemented:
 * Mapping of custom user attributes to CAS assertion attributes
 
 The following features are **currently missing**:
-* #2: Proxy ticket service and proxy ticket validation [CAS 2.0]
-* #1: SAML request/response [CAS 3.0 - optional]
+* [#1](/../../issues/1): SAML request/response [CAS 3.0 - optional]
+* [#2](/../../issues/2): Proxy ticket service and proxy ticket validation [CAS 2.0]
 
 The following features are out of scope:
 * Long-Term Tickets - Remember-Me [CAS 3.0 - optional]
 
-## Installation
+## Compatibility
 The CAS plugin has been tested against the following Keycloak versions. Please ensure your version is compatible before deploying.  
 Please report test results with other versions!
 
-Plugin version | Keycloak 2.5.x | Keycloak 3.0.x | Keycloak 3.1.x | Keycloak 3.2.x | Keycloak 3.3.x | Keycloak 3.4.x
------------- | ------------- | ------------- | ------------- | ------------- | ------------- | -------------
-1.x |  :white_check_mark: |  :white_check_mark: |  :white_check_mark: |  :x: |  :x: |  :x:
-2.x |  :x: |  :x: |  :x: |  :white_check_mark: | :white_check_mark: | :white_check_mark:
+* For Keycloak **2.5.x, 3.0.x and 3.1.x** please use plugin version **1.0.0**
+* For Keycloak **3.2.x, 3.3.x and 3.4.0** please use plugin version **2.1.0**
+* Starting from Keycloak **3.4.3**, the plugin version should **match your Keycloak version**
+
+## Installation
+Installation of a compatible plugin version is simple and can be done without a Keycloak server restart.
 
 1. Download the latest release compatible with your Keycloak version from the [releases page](https://github.com/Doccrazy/keycloak-protocol-cas/releases)
 2. Copy the JAR file into the `standalone/deployments` directory in your Keycloak server's root
