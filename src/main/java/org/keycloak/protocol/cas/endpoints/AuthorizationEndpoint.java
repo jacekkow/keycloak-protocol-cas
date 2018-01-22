@@ -42,12 +42,7 @@ public class AuthorizationEndpoint extends AuthorizationEndpointBase {
         checkRealm();
         checkClient(service);
 
-        AuthorizationEndpointChecks checks = getOrCreateAuthenticationSession(client, null);
-        if (checks.response != null) {
-            return checks.response;
-        }
-
-        authenticationSession = checks.authSession;
+        authenticationSession = createAuthenticationSession(client, null);
         updateAuthenticationSession();
 
         // So back button doesn't work
@@ -64,7 +59,7 @@ public class AuthorizationEndpoint extends AuthorizationEndpointBase {
     private void checkClient(String service) {
         if (service == null) {
             event.error(Errors.INVALID_REQUEST);
-            throw new ErrorPageException(session, Messages.MISSING_PARAMETER, CASLoginProtocol.SERVICE_PARAM);
+            throw new ErrorPageException(session, Response.Status.BAD_REQUEST, Messages.MISSING_PARAMETER, CASLoginProtocol.SERVICE_PARAM);
         }
 
         client = realm.getClients().stream()
@@ -73,12 +68,12 @@ public class AuthorizationEndpoint extends AuthorizationEndpointBase {
                 .findFirst().orElse(null);
         if (client == null) {
             event.error(Errors.CLIENT_NOT_FOUND);
-            throw new ErrorPageException(session, Messages.CLIENT_NOT_FOUND);
+            throw new ErrorPageException(session, Response.Status.BAD_REQUEST, Messages.CLIENT_NOT_FOUND);
         }
 
         if (!client.isEnabled()) {
             event.error(Errors.CLIENT_DISABLED);
-            throw new ErrorPageException(session, Messages.CLIENT_DISABLED);
+            throw new ErrorPageException(session, Response.Status.BAD_REQUEST, Messages.CLIENT_DISABLED);
         }
 
         redirectUri = RedirectUtils.verifyRedirectUri(uriInfo, service, realm, client);
@@ -93,10 +88,5 @@ public class AuthorizationEndpoint extends AuthorizationEndpointBase {
         authenticationSession.setProtocol(CASLoginProtocol.LOGIN_PROTOCOL);
         authenticationSession.setRedirectUri(redirectUri);
         authenticationSession.setAction(AuthenticationSessionModel.Action.AUTHENTICATE.name());
-    }
-
-    @Override
-    protected boolean isNewRequest(AuthenticationSessionModel authSession, ClientModel clientFromRequest, String requestState) {
-        return true;
     }
 }

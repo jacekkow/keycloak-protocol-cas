@@ -66,7 +66,7 @@ public class LogoutEndpoint {
             logger.debug("finishing CAS browser logout");
             return response;
         }
-        return ErrorPage.error(session, Messages.FAILED_LOGOUT);
+        return ErrorPage.error(session, null, Response.Status.BAD_REQUEST, Messages.FAILED_LOGOUT);
     }
 
     private void checkClient(String service) {

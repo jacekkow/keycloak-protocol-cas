@@ -12,7 +12,7 @@ get_ticket() {
         exit 1
     fi
 
-    login_url=${BASH_REMATCH[1]}
+    login_url=${BASH_REMATCH[1]//&amp;/&}
     redirect_response=$(curl --fail --silent -D - -b /tmp/cookies --data 'username=admin&password=admin' "$login_url")
     if [[ !($redirect_response =~ $ticket_pattern) ]] ; then
         echo "No service ticket found in response"

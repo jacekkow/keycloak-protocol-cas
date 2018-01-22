@@ -13,12 +13,6 @@ services:
   - docker
 
 env:
-#  - KEYCLOAK_VERSION=2.5.5.Final
-#  - KEYCLOAK_VERSION=3.0.0.Final
-#  - KEYCLOAK_VERSION=3.1.0.Final
-  - KEYCLOAK_VERSION=3.2.1.Final
-  - KEYCLOAK_VERSION=3.3.0.Final
-  - KEYCLOAK_VERSION=3.4.0.Final
   - KEYCLOAK_VERSION=3.4.3.Final
 
 before_install:
