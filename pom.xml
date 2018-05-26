@@ -22,12 +22,12 @@
 
     <groupId>org.keycloak</groupId>
     <artifactId>keycloak-protocol-cas</artifactId>
-    <version>3.4.3</version>
+    <version>4.0.0</version>
     <name>Keycloak CAS Protocol</name>
     <description />
 
     <properties>
-        <keycloak.version>${project.version}.Final</keycloak.version>
+        <keycloak.version>${project.version}.Beta3</keycloak.version>
         <jboss.logging.version>3.3.0.Final</jboss.logging.version>
         <jboss.logging.tools.version>2.0.1.Final</jboss.logging.tools.version>
         <junit.version>4.12</junit.version>
