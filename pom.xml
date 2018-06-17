@@ -27,7 +27,7 @@
     <description />
 
     <properties>
-        <keycloak.version>${project.version}.Beta3</keycloak.version>
+        <keycloak.version>${project.version}.Final</keycloak.version>
         <jboss.logging.version>3.3.0.Final</jboss.logging.version>
         <jboss.logging.tools.version>2.0.1.Final</jboss.logging.tools.version>
         <junit.version>4.12</junit.version>
