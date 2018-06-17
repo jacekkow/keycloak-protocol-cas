@@ -2,6 +2,7 @@ package org.keycloak.protocol.cas.mappers;
 
 import org.keycloak.models.*;
 import org.keycloak.protocol.ProtocolMapperUtils;
+import org.keycloak.protocol.oidc.TokenManager;
 import org.keycloak.protocol.oidc.mappers.OIDCAttributeMapperHelper;
 import org.keycloak.provider.ProviderConfigProperty;
 
@@ -78,10 +79,7 @@ public class UserClientRoleMappingMapper extends AbstractUserRoleMappingMapper {
             return RoleModel::isClientRole;
         }
 
-        ClientTemplateModel template = client.getClientTemplate();
-        boolean useTemplateScope = template != null && client.useTemplateScope();
-        boolean fullScopeAllowed = (useTemplateScope && template.isFullScopeAllowed()) || client.isFullScopeAllowed();
-
+        boolean fullScopeAllowed = client.isFullScopeAllowed();
         Set<RoleModel> clientRoleMappings = client.getRoles();
         if (fullScopeAllowed) {
             return clientRoleMappings::contains;
@@ -89,16 +87,10 @@ public class UserClientRoleMappingMapper extends AbstractUserRoleMappingMapper {
 
         Set<RoleModel> scopeMappings = new HashSet<>();
 
-        if (useTemplateScope) {
-            Set<RoleModel> templateScopeMappings = template.getScopeMappings();
-            if (templateScopeMappings != null) {
-                scopeMappings.addAll(templateScopeMappings);
-            }
-        }
-
-        Set<RoleModel> clientScopeMappings = client.getScopeMappings();
-        if (clientScopeMappings != null) {
-            scopeMappings.addAll(clientScopeMappings);
+        // CAS protocol does not support scopes, so pass null scopeParam
+        Set<ClientScopeModel> clientScopes = TokenManager.getRequestedClientScopes(null, client);
+        for (ClientScopeModel clientScope : clientScopes) {
+            scopeMappings.addAll(clientScope.getScopeMappings());
         }
 
         return role -> clientRoleMappings.contains(role) && scopeMappings.contains(role);
@@ -107,7 +99,7 @@ public class UserClientRoleMappingMapper extends AbstractUserRoleMappingMapper {
     public static ProtocolMapperModel create(String clientId, String clientRolePrefix,
                                              String name, String tokenClaimName) {
         ProtocolMapperModel mapper = CASAttributeMapperHelper.createClaimMapper(name, tokenClaimName,
-                "String", true, name, PROVIDER_ID);
+                "String", PROVIDER_ID);
         mapper.getConfig().put(ProtocolMapperUtils.USER_MODEL_CLIENT_ROLE_MAPPING_CLIENT_ID, clientId);
         mapper.getConfig().put(ProtocolMapperUtils.USER_MODEL_CLIENT_ROLE_MAPPING_ROLE_PREFIX, clientRolePrefix);
         return mapper;

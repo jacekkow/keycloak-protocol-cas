@@ -2,23 +2,21 @@ package org.keycloak.protocol.cas;
 
 import org.jboss.logging.Logger;
 import org.keycloak.events.EventBuilder;
-import org.keycloak.models.*;
+import org.keycloak.models.ClientModel;
+import org.keycloak.models.KeycloakSession;
+import org.keycloak.models.ProtocolMapperModel;
+import org.keycloak.models.RealmModel;
 import org.keycloak.protocol.AbstractLoginProtocolFactory;
 import org.keycloak.protocol.LoginProtocol;
-import org.keycloak.protocol.ProtocolMapperUtils;
 import org.keycloak.protocol.cas.mappers.FullNameMapper;
 import org.keycloak.protocol.cas.mappers.UserAttributeMapper;
 import org.keycloak.protocol.cas.mappers.UserPropertyMapper;
 import org.keycloak.representations.idm.ClientRepresentation;
-import org.keycloak.representations.idm.ClientTemplateRepresentation;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
-import static org.keycloak.protocol.oidc.mappers.OIDCAttributeMapperHelper.JSON_TYPE;
-import static org.keycloak.protocol.oidc.mappers.OIDCAttributeMapperHelper.TOKEN_CLAIM_NAME;
 
 public class CASLoginProtocolFactory extends AbstractLoginProtocolFactory {
     private static final Logger logger = Logger.getLogger(CASLoginProtocolFactory.class);
@@ -43,49 +41,43 @@ public class CASLoginProtocolFactory extends AbstractLoginProtocolFactory {
     }
 
     @Override
-    public List<ProtocolMapperModel> getBuiltinMappers() {
+    public Map<String, ProtocolMapperModel> getBuiltinMappers() {
         return builtins;
     }
 
-    @Override
-    public List<ProtocolMapperModel> getDefaultBuiltinMappers() {
-        return defaultBuiltins;
-    }
-
-    static List<ProtocolMapperModel> builtins = new ArrayList<>();
+    static Map<String, ProtocolMapperModel> builtins = new HashMap<>();
     static List<ProtocolMapperModel> defaultBuiltins = new ArrayList<>();
 
     static {
         ProtocolMapperModel model;
 
-        model = UserPropertyMapper.create(EMAIL, "email", "mail", "String",
-                true, EMAIL_CONSENT_TEXT);
-        builtins.add(model);
+        model = UserPropertyMapper.create(EMAIL, "email", "mail", "String");
+        builtins.put(EMAIL, model);
         defaultBuiltins.add(model);
-        model = UserPropertyMapper.create(GIVEN_NAME, "firstName", "givenName", "String",
-                true, GIVEN_NAME_CONSENT_TEXT);
-        builtins.add(model);
+        model = UserPropertyMapper.create(GIVEN_NAME, "firstName", "givenName", "String");
+        builtins.put(GIVEN_NAME, model);
         defaultBuiltins.add(model);
-        model = UserPropertyMapper.create(FAMILY_NAME, "lastName", "sn", "String",
-                true, FAMILY_NAME_CONSENT_TEXT);
-        builtins.add(model);
+        model = UserPropertyMapper.create(FAMILY_NAME, "lastName", "sn", "String");
+        builtins.put(FAMILY_NAME, model);
         defaultBuiltins.add(model);
         model = UserPropertyMapper.create(EMAIL_VERIFIED,
                 "emailVerified",
-                "emailVerified", "boolean",
-                false, EMAIL_VERIFIED_CONSENT_TEXT);
-        builtins.add(model);
+                "emailVerified", "boolean");
+        builtins.put(EMAIL_VERIFIED, model);
         model = UserAttributeMapper.create(LOCALE,
                 "locale",
                 "locale", "String",
-                false, LOCALE_CONSENT_TEXT,
                 false);
-        builtins.add(model);
+        builtins.put(LOCALE, model);
 
-        model = FullNameMapper.create(FULL_NAME, "cn",
-                true, FULL_NAME_CONSENT_TEXT);
-        builtins.add(model);
+        model = FullNameMapper.create(FULL_NAME, "cn");
+        builtins.put(FULL_NAME, model);
         defaultBuiltins.add(model);
+    }
+
+    @Override
+    protected void createDefaultClientScopesImpl(RealmModel newRealm) {
+        // no-op
     }
 
     @Override
@@ -115,10 +107,5 @@ public class CASLoginProtocolFactory extends AbstractLoginProtocolFactory {
         if (rep.getAdminUrl() == null && rep.getRootUrl() != null) {
             newClient.setManagementUrl(rep.getRootUrl());
         }
-    }
-
-    @Override
-    public void setupTemplateDefaults(ClientTemplateRepresentation clientRep, ClientTemplateModel newClient) {
-
     }
 }

@@ -48,9 +48,8 @@ public class FullNameMapper extends AbstractCASProtocolMapper {
         setMappedAttribute(attributes, mappingModel, first + last);
     }
 
-    public static ProtocolMapperModel create(String name, String tokenClaimName,
-                                             boolean consentRequired, String consentText) {
+    public static ProtocolMapperModel create(String name, String tokenClaimName) {
         return CASAttributeMapperHelper.createClaimMapper(name, tokenClaimName,
-                "String", consentRequired, consentText, PROVIDER_ID);
+                "String", PROVIDER_ID);
     }
 }

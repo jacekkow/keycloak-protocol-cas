@@ -1,10 +1,7 @@
 package org.keycloak.protocol.cas.endpoints;
 
 import org.keycloak.events.EventBuilder;
-import org.keycloak.models.KeycloakSessionFactory;
-import org.keycloak.models.ProtocolMapperModel;
-import org.keycloak.models.RealmModel;
-import org.keycloak.models.UserSessionModel;
+import org.keycloak.models.*;
 import org.keycloak.protocol.ProtocolMapper;
 import org.keycloak.protocol.cas.mappers.CASAttributeMapper;
 import org.keycloak.protocol.cas.representations.CASServiceResponse;
@@ -12,6 +9,7 @@ import org.keycloak.protocol.cas.utils.CASValidationException;
 import org.keycloak.protocol.cas.utils.ContentTypeHelper;
 import org.keycloak.protocol.cas.utils.ServiceResponseHelper;
 import org.keycloak.services.managers.ClientSessionCode;
+import org.keycloak.services.util.DefaultClientSessionContext;
 
 import javax.ws.rs.core.*;
 import java.util.HashMap;
@@ -29,8 +27,10 @@ public class ServiceValidateEndpoint extends ValidateEndpoint {
     @Override
     protected Response successResponse() {
         UserSessionModel userSession = clientSession.getUserSession();
+        // CAS protocol does not support scopes, so pass null scopeParam
+        ClientSessionContext clientSessionCtx = DefaultClientSessionContext.fromClientSessionAndScopeParameter(clientSession, null);
 
-        Set<ProtocolMapperModel> mappings = new ClientSessionCode<>(session, realm, clientSession).getRequestedProtocolMappers();
+        Set<ProtocolMapperModel> mappings = clientSessionCtx.getProtocolMappers();
         KeycloakSessionFactory sessionFactory = session.getKeycloakSessionFactory();
         Map<String, Object> attributes = new HashMap<>();
         for (ProtocolMapperModel mapping : mappings) {

@@ -85,7 +85,8 @@ public class CASLoginProtocol implements LoginProtocol {
     }
 
     @Override
-    public Response authenticated(UserSessionModel userSession, AuthenticatedClientSessionModel clientSession) {
+    public Response authenticated(UserSessionModel userSession, ClientSessionContext clientSessionCtx) {
+        AuthenticatedClientSessionModel clientSession = clientSessionCtx.getClientSession();
         ClientSessionCode<AuthenticatedClientSessionModel> accessCode = new ClientSessionCode<>(session, realm, clientSession);
 
         String service = clientSession.getRedirectUri();

@@ -63,10 +63,9 @@ public class UserSessionNoteMapper extends AbstractCASProtocolMapper {
 
     public static ProtocolMapperModel create(String name,
                                              String userSessionNote,
-                                             String tokenClaimName, String jsonType,
-                                             boolean consentRequired, String consentText) {
+                                             String tokenClaimName, String jsonType) {
         ProtocolMapperModel mapper = CASAttributeMapperHelper.createClaimMapper(name, tokenClaimName,
-                jsonType, consentRequired, consentText, PROVIDER_ID);
+                jsonType, PROVIDER_ID);
         mapper.getConfig().put(ProtocolMapperUtils.USER_SESSION_NOTE, userSessionNote);
         return mapper;
     }

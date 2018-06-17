@@ -69,10 +69,9 @@ public class GroupMembershipMapper extends AbstractCASProtocolMapper {
         return "true".equals(mappingModel.getConfig().get(FULL_PATH));
     }
 
-    public static ProtocolMapperModel create(String name, String tokenClaimName,
-                                             boolean consentRequired, String consentText, boolean fullPath) {
+    public static ProtocolMapperModel create(String name, String tokenClaimName, boolean fullPath) {
         ProtocolMapperModel mapper = CASAttributeMapperHelper.createClaimMapper(name, tokenClaimName,
-                "String", consentRequired, consentText, PROVIDER_ID);
+                "String", PROVIDER_ID);
         mapper.getConfig().put(FULL_PATH, Boolean.toString(fullPath));
         return mapper;
     }

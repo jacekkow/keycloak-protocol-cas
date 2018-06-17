@@ -68,9 +68,9 @@ public class UserAttributeMapper extends AbstractCASProtocolMapper {
 
     public static ProtocolMapperModel create(String name, String userAttribute,
                                              String tokenClaimName, String claimType,
-                                             boolean consentRequired, String consentText, boolean multivalued) {
+                                             boolean multivalued) {
         ProtocolMapperModel mapper = CASAttributeMapperHelper.createClaimMapper(name, tokenClaimName,
-                claimType, consentRequired, consentText, PROVIDER_ID);
+                claimType, PROVIDER_ID);
         mapper.getConfig().put(ProtocolMapperUtils.USER_ATTRIBUTE, userAttribute);
         if (multivalued) {
             mapper.getConfig().put(ProtocolMapperUtils.MULTIVALUED, "true");

@@ -58,10 +58,9 @@ public class UserPropertyMapper extends AbstractCASProtocolMapper {
     }
 
     public static ProtocolMapperModel create(String name, String userAttribute,
-                                             String tokenClaimName, String claimType,
-                                             boolean consentRequired, String consentText) {
+                                             String tokenClaimName, String claimType) {
         ProtocolMapperModel mapper = CASAttributeMapperHelper.createClaimMapper(name, tokenClaimName,
-                claimType, consentRequired, consentText, PROVIDER_ID);
+                claimType, PROVIDER_ID);
         mapper.getConfig().put(ProtocolMapperUtils.USER_ATTRIBUTE, userAttribute);
         return mapper;
     }

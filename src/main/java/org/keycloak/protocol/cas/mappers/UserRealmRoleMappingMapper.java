@@ -60,7 +60,7 @@ public class UserRealmRoleMappingMapper extends AbstractUserRoleMappingMapper {
 
     public static ProtocolMapperModel create(String realmRolePrefix, String name, String tokenClaimName) {
         ProtocolMapperModel mapper = CASAttributeMapperHelper.createClaimMapper(name, tokenClaimName,
-                "String", true, name, PROVIDER_ID);
+                "String", PROVIDER_ID);
         mapper.getConfig().put(ProtocolMapperUtils.USER_MODEL_REALM_ROLE_MAPPING_ROLE_PREFIX, realmRolePrefix);
         return mapper;
     }

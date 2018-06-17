@@ -10,14 +10,11 @@ import java.util.Map;
 public class CASAttributeMapperHelper {
     public static ProtocolMapperModel createClaimMapper(String name,
                                                         String tokenClaimName, String claimType,
-                                                        boolean consentRequired, String consentText,
                                                         String mapperId) {
         ProtocolMapperModel mapper = new ProtocolMapperModel();
         mapper.setName(name);
         mapper.setProtocolMapper(mapperId);
         mapper.setProtocol(CASLoginProtocol.LOGIN_PROTOCOL);
-        mapper.setConsentRequired(consentRequired);
-        mapper.setConsentText(consentText);
         Map<String, String> config = new HashMap<String, String>();
         config.put(OIDCAttributeMapperHelper.TOKEN_CLAIM_NAME, tokenClaimName);
         config.put(OIDCAttributeMapperHelper.JSON_TYPE, claimType);
