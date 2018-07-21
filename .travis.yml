@@ -13,7 +13,7 @@ services:
   - docker
 
 env:
-  - KEYCLOAK_VERSION=4.0.0.Final
+  - KEYCLOAK_VERSION=4.1.0.Final
 
 before_install:
   - docker pull jboss/keycloak:$KEYCLOAK_VERSION
