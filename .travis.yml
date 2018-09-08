@@ -16,21 +16,24 @@ env:
   - KEYCLOAK_VERSION=4.1.0.Final
 
 before_install:
-  - docker pull jboss/keycloak:$KEYCLOAK_VERSION
+  - if [ "$TRAVIS_EVENT_TYPE" != "cron" ]; then docker pull jboss/keycloak:$KEYCLOAK_VERSION; fi
 
 script:
-  - mvn test package -B &&
-    mkdir target/docker &&
-    cp target/*.jar target/docker/keycloak-protocol-cas.jar &&
-    echo "FROM jboss/keycloak:$KEYCLOAK_VERSION" > target/docker/Dockerfile &&
-    echo "ADD keycloak-protocol-cas.jar /opt/jboss/keycloak/standalone/deployments/" >> target/docker/Dockerfile &&
-    cd target/docker && docker build -t doccrazy/keycloak-cas . && cd ../.. &&
-    docker run -d -p 127.0.0.1:8080:8080 --name keycloak -e KEYCLOAK_USER=admin -e KEYCLOAK_PASSWORD=admin doccrazy/keycloak-cas && sleep 30 &&
-    docker logs keycloak &&
-    docker exec -t keycloak /opt/jboss/keycloak/bin/kcadm.sh config credentials --server http://localhost:8080/auth --realm master --user admin --password admin &&
-    docker exec -t keycloak /opt/jboss/keycloak/bin/kcadm.sh create clients -r master -s clientId=test -s protocol=cas -s enabled=true -s publicClient=true -s 'redirectUris=["http://localhost/*"]' -s baseUrl=http://localhost -s adminUrl=http://localhost &&
-    docker exec -t keycloak /opt/jboss/keycloak/bin/kcadm.sh get serverinfo -r master --fields "providers(login-protocol(providers(cas)))" | grep cas &&
-    integrationTest/suite.sh
+  - if [ "$TRAVIS_EVENT_TYPE" != "cron" ]; then
+      mvn test package -B &&
+      mkdir target/docker &&
+      cp target/*.jar target/docker/keycloak-protocol-cas.jar &&
+      echo "FROM jboss/keycloak:$KEYCLOAK_VERSION" > target/docker/Dockerfile &&
+      echo "ADD keycloak-protocol-cas.jar /opt/jboss/keycloak/standalone/deployments/" >> target/docker/Dockerfile &&
+      cd target/docker && docker build -t doccrazy/keycloak-cas . && cd ../.. &&
+      docker run -d -p 127.0.0.1:8080:8080 --name keycloak -e KEYCLOAK_USER=admin -e KEYCLOAK_PASSWORD=admin doccrazy/keycloak-cas && sleep 30 &&
+      docker logs keycloak &&
+      docker exec -t keycloak /opt/jboss/keycloak/bin/kcadm.sh config credentials --server http://localhost:8080/auth --realm master --user admin --password admin &&
+      docker exec -t keycloak /opt/jboss/keycloak/bin/kcadm.sh create clients -r master -s clientId=test -s protocol=cas -s enabled=true -s publicClient=true -s 'redirectUris=["http://localhost/*"]' -s baseUrl=http://localhost -s adminUrl=http://localhost &&
+      docker exec -t keycloak /opt/jboss/keycloak/bin/kcadm.sh get serverinfo -r master --fields "providers(login-protocol(providers(cas)))" | grep cas &&
+      integrationTest/suite.sh
+    ; fi
+  - if [ "$TRAVIS_EVENT_TYPE" = "cron" ]; then ./update.sh; fi
 
 before_deploy:
   - "mvn -DskipTests package"
