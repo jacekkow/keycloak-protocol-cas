@@ -20,7 +20,6 @@ import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.Response;
-import javax.ws.rs.core.UriInfo;
 
 public class LogoutEndpoint {
     private static final Logger logger = Logger.getLogger(LogoutEndpoint.class);
@@ -36,9 +35,6 @@ public class LogoutEndpoint {
 
     @Context
     private HttpHeaders headers;
-
-    @Context
-    private UriInfo uriInfo;
 
     private RealmModel realm;
     private EventBuilder event;
@@ -62,7 +58,7 @@ public class LogoutEndpoint {
             if (redirectUri != null) userSession.setNote(CASLoginProtocol.LOGOUT_REDIRECT_URI, redirectUri);
 
             logger.debug("Initiating CAS browser logout");
-            Response response =  AuthenticationManager.browserLogout(session, realm, authResult.getSession(), uriInfo, clientConnection, headers);
+            Response response =  AuthenticationManager.browserLogout(session, realm, authResult.getSession(), session.getContext().getUri(), clientConnection, headers);
             logger.debug("finishing CAS browser logout");
             return response;
         }
@@ -76,10 +72,10 @@ public class LogoutEndpoint {
 
         client = realm.getClients().stream()
                 .filter(c -> CASLoginProtocol.LOGIN_PROTOCOL.equals(c.getProtocol()))
-                .filter(c -> RedirectUtils.verifyRedirectUri(uriInfo, service, realm, c) != null)
+                .filter(c -> RedirectUtils.verifyRedirectUri(session.getContext().getUri(), service, realm, c) != null)
                 .findFirst().orElse(null);
         if (client != null) {
-            redirectUri = RedirectUtils.verifyRedirectUri(uriInfo, service, realm, client);
+            redirectUri = RedirectUtils.verifyRedirectUri(session.getContext().getUri(), service, realm, client);
 
             session.getContext().setClient(client);
         }

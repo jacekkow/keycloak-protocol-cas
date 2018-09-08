@@ -37,9 +37,6 @@ public class ValidateEndpoint {
     @Context
     protected HttpHeaders headers;
 
-    @Context
-    protected UriInfo uriInfo;
-
     protected RealmModel realm;
     protected EventBuilder event;
     protected ClientModel client;
@@ -53,7 +50,7 @@ public class ValidateEndpoint {
     @GET
     @NoCache
     public Response build() {
-        MultivaluedMap<String, String> params = uriInfo.getQueryParameters();
+        MultivaluedMap<String, String> params = session.getContext().getUri().getQueryParameters();
         String service = params.getFirst(CASLoginProtocol.SERVICE_PARAM);
         String ticket = params.getFirst(CASLoginProtocol.TICKET_PARAM);
         boolean renew = params.containsKey(CASLoginProtocol.RENEW_PARAM);
@@ -83,7 +80,7 @@ public class ValidateEndpoint {
     }
 
     private void checkSsl() {
-        if (!uriInfo.getBaseUri().getScheme().equals("https") && realm.getSslRequired().isRequired(clientConnection)) {
+        if (!session.getContext().getUri().getBaseUri().getScheme().equals("https") && realm.getSslRequired().isRequired(clientConnection)) {
             throw new CASValidationException(CASErrorCode.INVALID_REQUEST, "HTTPS required", Response.Status.FORBIDDEN);
         }
     }
@@ -102,7 +99,7 @@ public class ValidateEndpoint {
 
         client = realm.getClients().stream()
                 .filter(c -> CASLoginProtocol.LOGIN_PROTOCOL.equals(c.getProtocol()))
-                .filter(c -> RedirectUtils.verifyRedirectUri(uriInfo, service, realm, c) != null)
+                .filter(c -> RedirectUtils.verifyRedirectUri(session.getContext().getUri(), service, realm, c) != null)
                 .findFirst().orElse(null);
         if (client == null) {
             event.error(Errors.CLIENT_NOT_FOUND);

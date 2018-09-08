@@ -19,9 +19,6 @@ public class CASLoginProtocolService {
     private EventBuilder event;
 
     @Context
-    private UriInfo uriInfo;
-
-    @Context
     private KeycloakSession session;
 
     @Context

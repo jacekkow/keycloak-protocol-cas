@@ -33,7 +33,7 @@ public class AuthorizationEndpoint extends AuthorizationEndpointBase {
 
     @GET
     public Response build() {
-        MultivaluedMap<String, String> params = uriInfo.getQueryParameters();
+        MultivaluedMap<String, String> params = session.getContext().getUri().getQueryParameters();
         String service = params.getFirst(CASLoginProtocol.SERVICE_PARAM);
         boolean renew = params.containsKey(CASLoginProtocol.RENEW_PARAM);
         boolean gateway = params.containsKey(CASLoginProtocol.GATEWAY_PARAM);
@@ -53,7 +53,7 @@ public class AuthorizationEndpoint extends AuthorizationEndpointBase {
         }
 
         this.event.event(EventType.LOGIN);
-        return handleBrowserAuthenticationRequest(authenticationSession, new CASLoginProtocol(session, realm, uriInfo, headers, event), gateway, false);
+        return handleBrowserAuthenticationRequest(authenticationSession, new CASLoginProtocol(session, realm, session.getContext().getUri(), headers, event), gateway, false);
     }
 
     private void checkClient(String service) {
@@ -64,7 +64,7 @@ public class AuthorizationEndpoint extends AuthorizationEndpointBase {
 
         client = realm.getClients().stream()
                 .filter(c -> CASLoginProtocol.LOGIN_PROTOCOL.equals(c.getProtocol()))
-                .filter(c -> RedirectUtils.verifyRedirectUri(uriInfo, service, realm, c) != null)
+                .filter(c -> RedirectUtils.verifyRedirectUri(session.getContext().getUri(), service, realm, c) != null)
                 .findFirst().orElse(null);
         if (client == null) {
             event.error(Errors.CLIENT_NOT_FOUND);
@@ -76,7 +76,7 @@ public class AuthorizationEndpoint extends AuthorizationEndpointBase {
             throw new ErrorPageException(session, Response.Status.BAD_REQUEST, Messages.CLIENT_DISABLED);
         }
 
-        redirectUri = RedirectUtils.verifyRedirectUri(uriInfo, service, realm, client);
+        redirectUri = RedirectUtils.verifyRedirectUri(session.getContext().getUri(), service, realm, client);
 
         event.client(client.getClientId());
         event.detail(Details.REDIRECT_URI, redirectUri);
