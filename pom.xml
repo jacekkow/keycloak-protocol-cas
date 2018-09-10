@@ -22,7 +22,7 @@
 
     <groupId>org.keycloak</groupId>
     <artifactId>keycloak-protocol-cas</artifactId>
-    <version>4.3.0</version>
+    <version>4.4.0</version>
     <name>Keycloak CAS Protocol</name>
     <description />
 
