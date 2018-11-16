@@ -9,6 +9,7 @@ import org.keycloak.protocol.oidc.mappers.OIDCAttributeMapperHelper;
 import org.keycloak.provider.ProviderConfigProperty;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
@@ -33,6 +34,12 @@ public class UserAttributeMapper extends AbstractCASProtocolMapper {
         property.setType(ProviderConfigProperty.BOOLEAN_TYPE);
         configProperties.add(property);
 
+        property = new ProviderConfigProperty();
+        property.setName(ProtocolMapperUtils.AGGREGATE_ATTRS);
+        property.setLabel(ProtocolMapperUtils.AGGREGATE_ATTRS_LABEL);
+        property.setHelpText(ProtocolMapperUtils.AGGREGATE_ATTRS_HELP_TEXT);
+        property.setType(ProviderConfigProperty.BOOLEAN_TYPE);
+        configProperties.add(property);
     }
 
     public static final String PROVIDER_ID = "cas-usermodel-attribute-mapper";
@@ -62,18 +69,28 @@ public class UserAttributeMapper extends AbstractCASProtocolMapper {
     public void setAttribute(Map<String, Object> attributes, ProtocolMapperModel mappingModel, UserSessionModel userSession) {
         UserModel user = userSession.getUser();
         String attributeName = mappingModel.getConfig().get(ProtocolMapperUtils.USER_ATTRIBUTE);
-        List<String> attributeValue = KeycloakModelUtils.resolveAttribute(user, attributeName);
+        boolean aggregateAttrs = Boolean.valueOf(mappingModel.getConfig().get(ProtocolMapperUtils.AGGREGATE_ATTRS));
+        Collection<String> attributeValue = KeycloakModelUtils.resolveAttribute(user, attributeName, aggregateAttrs);
         setMappedAttribute(attributes, mappingModel, attributeValue);
     }
 
     public static ProtocolMapperModel create(String name, String userAttribute,
                                              String tokenClaimName, String claimType,
                                              boolean multivalued) {
+        return create(name, userAttribute, tokenClaimName, claimType, multivalued, false);
+    }
+
+    public static ProtocolMapperModel create(String name, String userAttribute,
+                                             String tokenClaimName, String claimType,
+                                             boolean multivalued, boolean aggregateAttrs) {
         ProtocolMapperModel mapper = CASAttributeMapperHelper.createClaimMapper(name, tokenClaimName,
                 claimType, PROVIDER_ID);
         mapper.getConfig().put(ProtocolMapperUtils.USER_ATTRIBUTE, userAttribute);
         if (multivalued) {
             mapper.getConfig().put(ProtocolMapperUtils.MULTIVALUED, "true");
+        }
+        if (aggregateAttrs) {
+            mapper.getConfig().put(ProtocolMapperUtils.AGGREGATE_ATTRS, "true");
         }
         return mapper;
     }
