@@ -1,8 +1,6 @@
 package org.keycloak.protocol.cas.mappers;
 
-import org.keycloak.models.GroupModel;
-import org.keycloak.models.ProtocolMapperModel;
-import org.keycloak.models.UserSessionModel;
+import org.keycloak.models.*;
 import org.keycloak.models.utils.ModelToRepresentation;
 import org.keycloak.protocol.oidc.mappers.OIDCAttributeMapperHelper;
 import org.keycloak.provider.ProviderConfigProperty;
@@ -52,7 +50,8 @@ public class GroupMembershipMapper extends AbstractCASProtocolMapper {
     }
 
     @Override
-    public void setAttribute(Map<String, Object> attributes, ProtocolMapperModel mappingModel, UserSessionModel userSession) {
+    public void setAttribute(Map<String, Object> attributes, ProtocolMapperModel mappingModel, UserSessionModel userSession,
+                             KeycloakSession session, ClientSessionContext clientSessionCt) {
         List<String> membership = new LinkedList<>();
         boolean fullPath = useFullPath(mappingModel);
         for (GroupModel group : userSession.getUser().getGroups()) {

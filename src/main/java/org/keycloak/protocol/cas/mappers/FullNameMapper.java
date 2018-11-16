@@ -1,8 +1,6 @@
 package org.keycloak.protocol.cas.mappers;
 
-import org.keycloak.models.ProtocolMapperModel;
-import org.keycloak.models.UserModel;
-import org.keycloak.models.UserSessionModel;
+import org.keycloak.models.*;
 import org.keycloak.protocol.oidc.mappers.OIDCAttributeMapperHelper;
 import org.keycloak.provider.ProviderConfigProperty;
 
@@ -41,7 +39,8 @@ public class FullNameMapper extends AbstractCASProtocolMapper {
     }
 
     @Override
-    public void setAttribute(Map<String, Object> attributes, ProtocolMapperModel mappingModel, UserSessionModel userSession) {
+    public void setAttribute(Map<String, Object> attributes, ProtocolMapperModel mappingModel, UserSessionModel userSession,
+                             KeycloakSession session, ClientSessionContext clientSessionCt) {
         UserModel user = userSession.getUser();
         String first = user.getFirstName() == null ? "" : user.getFirstName() + " ";
         String last = user.getLastName() == null ? "" : user.getLastName();

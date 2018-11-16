@@ -1,5 +1,7 @@
 package org.keycloak.protocol.cas.mappers;
 
+import org.keycloak.models.ClientSessionContext;
+import org.keycloak.models.KeycloakSession;
 import org.keycloak.models.ProtocolMapperModel;
 import org.keycloak.models.UserSessionModel;
 import org.keycloak.protocol.ProtocolMapperUtils;
@@ -54,7 +56,8 @@ public class UserSessionNoteMapper extends AbstractCASProtocolMapper {
     }
 
     @Override
-    public void setAttribute(Map<String, Object> attributes, ProtocolMapperModel mappingModel, UserSessionModel userSession) {
+    public void setAttribute(Map<String, Object> attributes, ProtocolMapperModel mappingModel, UserSessionModel userSession,
+                             KeycloakSession session, ClientSessionContext clientSessionCt) {
         String noteName = mappingModel.getConfig().get(ProtocolMapperUtils.USER_SESSION_NOTE);
         String noteValue = userSession.getNote(noteName);
         if (noteValue == null) return;

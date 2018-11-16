@@ -1,5 +1,7 @@
 package org.keycloak.protocol.cas.mappers;
 
+import org.keycloak.models.ClientSessionContext;
+import org.keycloak.models.KeycloakSession;
 import org.keycloak.models.ProtocolMapperModel;
 import org.keycloak.models.UserSessionModel;
 import org.keycloak.protocol.oidc.mappers.OIDCAttributeMapperHelper;
@@ -53,7 +55,8 @@ public class HardcodedClaim extends AbstractCASProtocolMapper {
     }
 
     @Override
-    public void setAttribute(Map<String, Object> attributes, ProtocolMapperModel mappingModel, UserSessionModel userSession) {
+    public void setAttribute(Map<String, Object> attributes, ProtocolMapperModel mappingModel, UserSessionModel userSession,
+                             KeycloakSession session, ClientSessionContext clientSessionCt) {
         setMappedAttribute(attributes, mappingModel, mappingModel.getConfig().get(CLAIM_VALUE));
     }
 

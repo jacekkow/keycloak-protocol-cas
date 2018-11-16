@@ -1,10 +1,14 @@
 package org.keycloak.protocol.cas.mappers;
 
+import org.keycloak.models.ClientSessionContext;
+import org.keycloak.models.KeycloakSession;
 import org.keycloak.models.ProtocolMapperModel;
 import org.keycloak.models.UserSessionModel;
 import org.keycloak.protocol.ProtocolMapperUtils;
 import org.keycloak.protocol.oidc.mappers.OIDCAttributeMapperHelper;
 import org.keycloak.provider.ProviderConfigProperty;
+import org.keycloak.representations.AccessToken;
+import org.keycloak.utils.RoleResolveUtil;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -53,9 +57,16 @@ public class UserRealmRoleMappingMapper extends AbstractUserRoleMappingMapper {
     }
 
     @Override
-    public void setAttribute(Map<String, Object> attributes, ProtocolMapperModel mappingModel, UserSessionModel userSession) {
+    public void setAttribute(Map<String, Object> attributes, ProtocolMapperModel mappingModel, UserSessionModel userSession,
+                             KeycloakSession session, ClientSessionContext clientSessionCtx) {
         String rolePrefix = mappingModel.getConfig().get(ProtocolMapperUtils.USER_MODEL_REALM_ROLE_MAPPING_ROLE_PREFIX);
-        setAttribute(attributes, mappingModel, userSession, role -> ! role.isClientRole(), rolePrefix);
+
+        AccessToken.Access access = RoleResolveUtil.getResolvedRealmRoles(session, clientSessionCtx, false);
+        if (access == null) {
+            return;
+        }
+
+        setAttribute(attributes, mappingModel, access.getRoles(), rolePrefix);
     }
 
     public static ProtocolMapperModel create(String realmRolePrefix, String name, String tokenClaimName) {

@@ -2,12 +2,13 @@ package org.keycloak.protocol.cas.mappers;
 
 import org.keycloak.models.*;
 import org.keycloak.protocol.ProtocolMapperUtils;
-import org.keycloak.protocol.oidc.TokenManager;
 import org.keycloak.protocol.oidc.mappers.OIDCAttributeMapperHelper;
 import org.keycloak.provider.ProviderConfigProperty;
+import org.keycloak.representations.AccessToken;
+import org.keycloak.utils.RoleResolveUtil;
 
 import java.util.*;
-import java.util.function.Predicate;
+import java.util.stream.Collectors;
 
 public class UserClientRoleMappingMapper extends AbstractUserRoleMappingMapper {
 
@@ -60,40 +61,25 @@ public class UserClientRoleMappingMapper extends AbstractUserRoleMappingMapper {
     }
 
     @Override
-    public void setAttribute(Map<String, Object> attributes, ProtocolMapperModel mappingModel, UserSessionModel userSession) {
+    public void setAttribute(Map<String, Object> attributes, ProtocolMapperModel mappingModel, UserSessionModel userSession,
+                             KeycloakSession session, ClientSessionContext clientSessionCtx) {
         String clientId = mappingModel.getConfig().get(ProtocolMapperUtils.USER_MODEL_CLIENT_ROLE_MAPPING_CLIENT_ID);
         String rolePrefix = mappingModel.getConfig().get(ProtocolMapperUtils.USER_MODEL_CLIENT_ROLE_MAPPING_ROLE_PREFIX);
 
-        setAttribute(attributes, mappingModel, userSession, getClientRoleFilter(clientId, userSession), rolePrefix);
-    }
-
-    private static Predicate<RoleModel> getClientRoleFilter(String clientId, UserSessionModel userSession) {
-        if (clientId == null) {
-            return RoleModel::isClientRole;
+        if (clientId != null && !clientId.isEmpty()) {
+            AccessToken.Access access = RoleResolveUtil.getResolvedClientRoles(session, clientSessionCtx, clientId, false);
+            if (access == null) {
+                return;
+            }
+            setAttribute(attributes, mappingModel, access.getRoles(), rolePrefix);
+        } else {
+            // If clientId is not specified, we consider all clients
+            Map<String, AccessToken.Access> allAccess = RoleResolveUtil.getAllResolvedClientRoles(session, clientSessionCtx);
+            Set<String> allRoles = allAccess.values().stream().filter(Objects::nonNull)
+                    .flatMap(access -> access.getRoles().stream())
+                    .collect(Collectors.toSet());
+            setAttribute(attributes, mappingModel, allRoles, rolePrefix);
         }
-
-        RealmModel clientRealm = userSession.getRealm();
-        ClientModel client = clientRealm.getClientByClientId(clientId.trim());
-
-        if (client == null) {
-            return RoleModel::isClientRole;
-        }
-
-        boolean fullScopeAllowed = client.isFullScopeAllowed();
-        Set<RoleModel> clientRoleMappings = client.getRoles();
-        if (fullScopeAllowed) {
-            return clientRoleMappings::contains;
-        }
-
-        Set<RoleModel> scopeMappings = new HashSet<>();
-
-        // CAS protocol does not support scopes, so pass null scopeParam
-        Set<ClientScopeModel> clientScopes = TokenManager.getRequestedClientScopes(null, client);
-        for (ClientScopeModel clientScope : clientScopes) {
-            scopeMappings.addAll(clientScope.getScopeMappings());
-        }
-
-        return role -> clientRoleMappings.contains(role) && scopeMappings.contains(role);
     }
 
     public static ProtocolMapperModel create(String clientId, String clientRolePrefix,

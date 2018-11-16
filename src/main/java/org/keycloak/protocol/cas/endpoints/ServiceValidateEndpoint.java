@@ -36,7 +36,7 @@ public class ServiceValidateEndpoint extends ValidateEndpoint {
         for (ProtocolMapperModel mapping : mappings) {
             ProtocolMapper mapper = (ProtocolMapper) sessionFactory.getProviderFactory(ProtocolMapper.class, mapping.getProtocolMapper());
             if (mapper instanceof CASAttributeMapper) {
-                ((CASAttributeMapper) mapper).setAttribute(attributes, mapping, userSession);
+                ((CASAttributeMapper) mapper).setAttribute(attributes, mapping, userSession, session, clientSessionCtx);
             }
         }
 

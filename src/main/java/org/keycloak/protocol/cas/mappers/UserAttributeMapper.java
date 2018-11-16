@@ -1,8 +1,6 @@
 package org.keycloak.protocol.cas.mappers;
 
-import org.keycloak.models.ProtocolMapperModel;
-import org.keycloak.models.UserModel;
-import org.keycloak.models.UserSessionModel;
+import org.keycloak.models.*;
 import org.keycloak.models.utils.KeycloakModelUtils;
 import org.keycloak.protocol.ProtocolMapperUtils;
 import org.keycloak.protocol.oidc.mappers.OIDCAttributeMapperHelper;
@@ -66,7 +64,8 @@ public class UserAttributeMapper extends AbstractCASProtocolMapper {
     }
 
     @Override
-    public void setAttribute(Map<String, Object> attributes, ProtocolMapperModel mappingModel, UserSessionModel userSession) {
+    public void setAttribute(Map<String, Object> attributes, ProtocolMapperModel mappingModel, UserSessionModel userSession,
+                             KeycloakSession session, ClientSessionContext clientSessionCt) {
         UserModel user = userSession.getUser();
         String attributeName = mappingModel.getConfig().get(ProtocolMapperUtils.USER_ATTRIBUTE);
         boolean aggregateAttrs = Boolean.valueOf(mappingModel.getConfig().get(ProtocolMapperUtils.AGGREGATE_ATTRS));
