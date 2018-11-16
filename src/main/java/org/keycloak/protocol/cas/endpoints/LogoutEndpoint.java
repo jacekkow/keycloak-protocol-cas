@@ -58,7 +58,7 @@ public class LogoutEndpoint {
             if (redirectUri != null) userSession.setNote(CASLoginProtocol.LOGOUT_REDIRECT_URI, redirectUri);
 
             logger.debug("Initiating CAS browser logout");
-            Response response =  AuthenticationManager.browserLogout(session, realm, authResult.getSession(), session.getContext().getUri(), clientConnection, headers);
+            Response response =  AuthenticationManager.browserLogout(session, realm, authResult.getSession(), session.getContext().getUri(), clientConnection, headers, null);
             logger.debug("finishing CAS browser logout");
             return response;
         }
