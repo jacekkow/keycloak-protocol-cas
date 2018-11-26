@@ -61,6 +61,7 @@
             <groupId>org.jboss.logging</groupId>
             <artifactId>jboss-logging</artifactId>
             <version>${jboss.logging.version}</version>
+            <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>org.jboss.logging</groupId>
@@ -85,7 +86,7 @@
             <groupId>org.keycloak</groupId>
             <artifactId>keycloak-saml-core</artifactId>
             <version>${keycloak.version}</version>
-            <scope>test</scope>
+            <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>junit</groupId>
@@ -111,7 +112,7 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
-                <version>3.1</version>
+                <version>3.8.0</version>
                 <configuration>
                     <source>${maven.compiler.source}</source>
                     <target>${maven.compiler.target}</target>
@@ -126,7 +127,7 @@
                 <configuration>
                     <archive>
                         <manifestEntries>
-                            <Dependencies>javax.xml.bind.api,org.keycloak.keycloak-core,org.keycloak.keycloak-server-spi,org.keycloak.keycloak-server-spi-private,org.keycloak.keycloak-services</Dependencies>
+                            <Dependencies>javax.xml.bind.api,org.keycloak.keycloak-core,org.keycloak.keycloak-server-spi,org.keycloak.keycloak-server-spi-private,org.keycloak.keycloak-services,org.keycloak.keycloak-saml-core,org.keycloak.keycloak-saml-core-public</Dependencies>
                         </manifestEntries>
                     </archive>
                 </configuration>

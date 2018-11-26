@@ -25,6 +25,7 @@ public class CASLoginProtocol implements LoginProtocol {
     public static final String LOGIN_PROTOCOL = "cas";
 
     public static final String SERVICE_PARAM = "service";
+    public static final String TARGET_PARAM = "TARGET";
     public static final String RENEW_PARAM = "renew";
     public static final String GATEWAY_PARAM = "gateway";
     public static final String TICKET_PARAM = "ticket";

@@ -27,19 +27,7 @@ public class ServiceValidateEndpoint extends ValidateEndpoint {
     @Override
     protected Response successResponse() {
         UserSessionModel userSession = clientSession.getUserSession();
-        // CAS protocol does not support scopes, so pass null scopeParam
-        ClientSessionContext clientSessionCtx = DefaultClientSessionContext.fromClientSessionAndScopeParameter(clientSession, null);
-
-        Set<ProtocolMapperModel> mappings = clientSessionCtx.getProtocolMappers();
-        KeycloakSessionFactory sessionFactory = session.getKeycloakSessionFactory();
-        Map<String, Object> attributes = new HashMap<>();
-        for (ProtocolMapperModel mapping : mappings) {
-            ProtocolMapper mapper = (ProtocolMapper) sessionFactory.getProviderFactory(ProtocolMapper.class, mapping.getProtocolMapper());
-            if (mapper instanceof CASAttributeMapper) {
-                ((CASAttributeMapper) mapper).setAttribute(attributes, mapping, userSession, session, clientSessionCtx);
-            }
-        }
-
+        Map<String, Object> attributes = getUserAttributes();
         CASServiceResponse serviceResponse = ServiceResponseHelper.createSuccess(userSession.getUser().getUsername(), attributes);
         return prepare(Response.Status.OK, serviceResponse);
     }
