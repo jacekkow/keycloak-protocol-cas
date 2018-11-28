@@ -141,13 +141,14 @@ public class CASLoginProtocol implements LoginProtocol {
 
         event.event(EventType.LOGOUT);
         event.user(userSession.getUser()).session(userSession).success();
-        LoginFormsProvider infoPage = session.getProvider(LoginFormsProvider.class).setSuccess("Logout successful");
+
         if (redirectUri != null) {
-            infoPage.setAttribute("pageRedirectUri", redirectUri);
+            return Response.status(302).location(URI.create(redirectUri)).build();
         } else {
+            LoginFormsProvider infoPage = session.getProvider(LoginFormsProvider.class).setSuccess("Logout successful");
             infoPage.setAttribute("skipLink", true);
+            return infoPage.createInfoPage();
         }
-        return infoPage.createInfoPage();
     }
 
     @Override
