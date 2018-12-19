@@ -3,13 +3,15 @@ package org.keycloak.protocol.cas;
 import org.apache.http.HttpEntity;
 import org.jboss.logging.Logger;
 import org.keycloak.common.util.KeycloakUriBuilder;
+import org.keycloak.common.util.Time;
 import org.keycloak.events.EventBuilder;
 import org.keycloak.events.EventType;
 import org.keycloak.forms.login.LoginFormsProvider;
 import org.keycloak.models.*;
 import org.keycloak.protocol.LoginProtocol;
 import org.keycloak.protocol.cas.utils.LogoutHelper;
-import org.keycloak.services.managers.ClientSessionCode;
+import org.keycloak.protocol.oidc.utils.OAuth2Code;
+import org.keycloak.protocol.oidc.utils.OAuth2CodeParser;
 import org.keycloak.services.managers.ResourceAdminManager;
 import org.keycloak.sessions.AuthenticationSessionModel;
 
@@ -18,6 +20,7 @@ import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
 import java.io.IOException;
 import java.net.URI;
+import java.util.UUID;
 
 public class CASLoginProtocol implements LoginProtocol {
     private static final Logger logger = Logger.getLogger(CASLoginProtocol.class);
@@ -86,14 +89,17 @@ public class CASLoginProtocol implements LoginProtocol {
     }
 
     @Override
-    public Response authenticated(UserSessionModel userSession, ClientSessionContext clientSessionCtx) {
+    public Response authenticated(AuthenticationSessionModel authSession, UserSessionModel userSession, ClientSessionContext clientSessionCtx) {
         AuthenticatedClientSessionModel clientSession = clientSessionCtx.getClientSession();
-        ClientSessionCode<AuthenticatedClientSessionModel> accessCode = new ClientSessionCode<>(session, realm, clientSession);
 
-        String service = clientSession.getRedirectUri();
+        String service = authSession.getRedirectUri();
         //TODO validate service
 
-        String code = accessCode.getOrGenerateCode();
+        OAuth2Code codeData = new OAuth2Code(UUID.randomUUID(),
+                Time.currentTime() + userSession.getRealm().getAccessCodeLifespan(),
+                null, null, authSession.getRedirectUri(), null, null);
+        String code = OAuth2CodeParser.persistCode(session, clientSession, codeData);
+
         KeycloakUriBuilder uriBuilder = KeycloakUriBuilder.fromUri(service);
         uriBuilder.queryParam(TICKET_RESPONSE_PARAM, SERVICE_TICKET_PREFIX + code);
 

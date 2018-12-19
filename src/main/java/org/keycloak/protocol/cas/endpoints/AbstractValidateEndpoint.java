@@ -3,7 +3,6 @@ package org.keycloak.protocol.cas.endpoints;
 import org.jboss.logging.Logger;
 import org.jboss.resteasy.spi.HttpRequest;
 import org.keycloak.common.ClientConnection;
-import org.keycloak.events.Details;
 import org.keycloak.events.Errors;
 import org.keycloak.events.EventBuilder;
 import org.keycloak.models.*;
@@ -12,9 +11,9 @@ import org.keycloak.protocol.cas.CASLoginProtocol;
 import org.keycloak.protocol.cas.mappers.CASAttributeMapper;
 import org.keycloak.protocol.cas.representations.CASErrorCode;
 import org.keycloak.protocol.cas.utils.CASValidationException;
+import org.keycloak.protocol.oidc.utils.OAuth2CodeParser;
 import org.keycloak.protocol.oidc.utils.RedirectUtils;
 import org.keycloak.services.managers.AuthenticationManager;
-import org.keycloak.services.managers.ClientSessionCode;
 import org.keycloak.services.util.DefaultClientSessionContext;
 
 import javax.ws.rs.core.Context;
@@ -93,13 +92,8 @@ public abstract class AbstractValidateEndpoint {
 
         String code = ticket.substring(CASLoginProtocol.SERVICE_TICKET_PREFIX.length());
 
-        String[] parts = code.split("\\.");
-        if (parts.length == 4) {
-            event.detail(Details.CODE_ID, parts[2]);
-        }
-
-        ClientSessionCode.ParseResult<AuthenticatedClientSessionModel> parseResult = ClientSessionCode.parseResult(code, null, session, realm, client, event, AuthenticatedClientSessionModel.class);
-        if (parseResult.isAuthSessionNotFound() || parseResult.isIllegalHash()) {
+        OAuth2CodeParser.ParseResult parseResult = OAuth2CodeParser.parseCode(session, code, realm, event);
+        if (parseResult.isIllegalCode()) {
             event.error(Errors.INVALID_CODE);
 
             // Attempt to use same code twice should invalidate existing clientSession
@@ -113,7 +107,7 @@ public abstract class AbstractValidateEndpoint {
 
         clientSession = parseResult.getClientSession();
 
-        if (parseResult.isExpiredToken()) {
+        if (parseResult.isExpiredCode()) {
             event.error(Errors.EXPIRED_CODE);
             throw new CASValidationException(CASErrorCode.INVALID_TICKET, "Code is expired", Response.Status.BAD_REQUEST);
         }
