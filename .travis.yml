@@ -13,20 +13,20 @@ services:
   - docker
 
 env:
-  - KEYCLOAK_VERSION=4.8.3.Final
+  - KEYCLOAK_VERSION=5.0.0
 
 before_install:
-  - if [ "$TRAVIS_EVENT_TYPE" != "cron" ]; then docker pull jboss/keycloak:$KEYCLOAK_VERSION; fi
+  - if [ "$TRAVIS_EVENT_TYPE" != "cron" ]; then docker pull quay.io/keycloak/keycloak:$KEYCLOAK_VERSION; fi
 
 script:
   - if [ "$TRAVIS_EVENT_TYPE" != "cron" ]; then
       mvn test package -B &&
       mkdir target/docker &&
       cp target/*.jar target/docker/keycloak-protocol-cas.jar &&
-      echo "FROM jboss/keycloak:$KEYCLOAK_VERSION" > target/docker/Dockerfile &&
+      echo "FROM quay.io/keycloak/keycloak:$KEYCLOAK_VERSION" > target/docker/Dockerfile &&
       echo "ADD keycloak-protocol-cas.jar /opt/jboss/keycloak/standalone/deployments/" >> target/docker/Dockerfile &&
       cd target/docker && docker build -t doccrazy/keycloak-cas . && cd ../.. &&
-      docker run -d -p 127.0.0.1:8080:8080 --name keycloak -e KEYCLOAK_USER=admin -e KEYCLOAK_PASSWORD=admin doccrazy/keycloak-cas && sleep 30 &&
+      docker run -d -p 127.0.0.1:8080:8080 --name keycloak -e KEYCLOAK_USER=admin -e KEYCLOAK_PASSWORD=admin doccrazy/keycloak-cas && sleep 60 &&
       docker logs keycloak &&
       docker exec -t keycloak /opt/jboss/keycloak/bin/kcadm.sh config credentials --server http://localhost:8080/auth --realm master --user admin --password admin &&
       docker exec -t keycloak /opt/jboss/keycloak/bin/kcadm.sh create clients -r master -s clientId=test -s protocol=cas -s enabled=true -s publicClient=true -s 'redirectUris=["http://localhost/*"]' -s baseUrl=http://localhost -s adminUrl=http://localhost &&

@@ -2,9 +2,8 @@
 set -e
 
 function docker_tag_exists() {
-    TOKEN=$(curl --silent -f "https://auth.docker.io/token?service=registry.docker.io&scope=repository:$1:pull" | sed 's/.*"token":"\([^"]*\)".*/\1/')
-    REGISTRY_URL="https://registry-1.docker.io/v2/$1/manifests/$2"
-    curl -fsSLI -H "Authorization: Bearer $TOKEN" "$REGISTRY_URL" > /dev/null
+    REGISTRY_URL="https://quay.io/v2/$1/manifests/$2"
+    curl -fsSLI "$REGISTRY_URL" > /dev/null
 }
 
 setup_git() {
@@ -18,8 +17,7 @@ pull_request() {
 }
 
 
-KEYCLOAK_VERSION=$(mvn versions:display-property-updates -DincludeProperties=keycloak.version | grep "keycloak.version" | sed -n "s/.*->\s*\(.*\)\.Final$/\1/p")
-KEYCLOAK_VERSION_FULL=$KEYCLOAK_VERSION.Final
+KEYCLOAK_VERSION=$(mvn versions:display-property-updates -DincludeProperties=keycloak.version | grep "keycloak.version" | sed -nr "s/.*->\s*([0-9]+\.[0-9]+\.[0-9])$/\1/p")
 if [ -z "$KEYCLOAK_VERSION" ]; then
     echo "No Keycloak update found."
     exit
@@ -32,22 +30,22 @@ if git ls-remote -q --exit-code origin $BRANCH; then
     exit
 fi
 
-if ! docker_tag_exists jboss/keycloak $KEYCLOAK_VERSION_FULL; then
-    echo "Docker image for Keycloak $KEYCLOAK_VERSION_FULL not found, not updating."
+if ! docker_tag_exists keycloak/keycloak $KEYCLOAK_VERSION; then
+    echo "Docker image for Keycloak $KEYCLOAK_VERSION not found, not updating."
     exit
 fi
 echo "Found updated docker image, proceeding"
 
 mvn versions:set -DnewVersion=$KEYCLOAK_VERSION -DgenerateBackupPoms=false
-sed -i "s/KEYCLOAK_VERSION=.*/KEYCLOAK_VERSION=$KEYCLOAK_VERSION_FULL/" .travis.yml
+sed -i "s/KEYCLOAK_VERSION=.*/KEYCLOAK_VERSION=$KEYCLOAK_VERSION/" .travis.yml
 
 setup_git
 git checkout -b $BRANCH
 git add pom.xml .travis.yml
-git commit -m "Update to Keycloak $KEYCLOAK_VERSION_FULL"
+git commit -m "Update to Keycloak $KEYCLOAK_VERSION"
 git push --quiet --set-upstream origin-auth $BRANCH
 
-PR_TITLE="Update to Keycloak $KEYCLOAK_VERSION_FULL"
-PR_BODY="Updates Keycloak dependency, CI test image and project version for Keycloak release $KEYCLOAK_VERSION_FULL\\n\\n*(automated pull request after upstream release)*"
+PR_TITLE="Update to Keycloak $KEYCLOAK_VERSION"
+PR_BODY="Updates Keycloak dependency, CI test image and project version for Keycloak release $KEYCLOAK_VERSION\\n\\n*(automated pull request after upstream release)*"
 pull_request $BRANCH "$PR_TITLE" "$PR_BODY"
 echo "Created pull request '$PR_TITLE'"
