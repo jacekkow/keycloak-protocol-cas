@@ -13,7 +13,7 @@ services:
   - docker
 
 env:
-  - KEYCLOAK_VERSION=6.0.0
+  - KEYCLOAK_VERSION=6.0.1
 
 before_install:
   - if [ "$TRAVIS_EVENT_TYPE" != "cron" ]; then docker pull quay.io/keycloak/keycloak:$KEYCLOAK_VERSION; fi
