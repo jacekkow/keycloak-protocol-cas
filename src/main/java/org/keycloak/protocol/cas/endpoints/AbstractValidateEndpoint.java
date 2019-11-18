@@ -63,7 +63,7 @@ public abstract class AbstractValidateEndpoint {
 
         client = realm.getClients().stream()
                 .filter(c -> CASLoginProtocol.LOGIN_PROTOCOL.equals(c.getProtocol()))
-                .filter(c -> RedirectUtils.verifyRedirectUri(session.getContext().getUri(), service, realm, c) != null)
+                .filter(c -> RedirectUtils.verifyRedirectUri(session, service, c) != null)
                 .findFirst().orElse(null);
         if (client == null) {
             event.error(Errors.CLIENT_NOT_FOUND);
