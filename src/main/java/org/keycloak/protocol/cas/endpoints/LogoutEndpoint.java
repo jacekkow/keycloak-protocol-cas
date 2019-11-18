@@ -72,10 +72,10 @@ public class LogoutEndpoint {
 
         client = realm.getClients().stream()
                 .filter(c -> CASLoginProtocol.LOGIN_PROTOCOL.equals(c.getProtocol()))
-                .filter(c -> RedirectUtils.verifyRedirectUri(session.getContext().getUri(), service, realm, c) != null)
+                .filter(c -> RedirectUtils.verifyRedirectUri(session, service, c) != null)
                 .findFirst().orElse(null);
         if (client != null) {
-            redirectUri = RedirectUtils.verifyRedirectUri(session.getContext().getUri(), service, realm, client);
+            redirectUri = RedirectUtils.verifyRedirectUri(session, service, client);
 
             session.getContext().setClient(client);
         }
