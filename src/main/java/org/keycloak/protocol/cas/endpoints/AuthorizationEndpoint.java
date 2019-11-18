@@ -64,7 +64,7 @@ public class AuthorizationEndpoint extends AuthorizationEndpointBase {
 
         client = realm.getClients().stream()
                 .filter(c -> CASLoginProtocol.LOGIN_PROTOCOL.equals(c.getProtocol()))
-                .filter(c -> RedirectUtils.verifyRedirectUri(session.getContext().getUri(), service, realm, c) != null)
+                .filter(c -> RedirectUtils.verifyRedirectUri(session, service, c) != null)
                 .findFirst().orElse(null);
         if (client == null) {
             event.error(Errors.CLIENT_NOT_FOUND);
@@ -76,7 +76,7 @@ public class AuthorizationEndpoint extends AuthorizationEndpointBase {
             throw new ErrorPageException(session, Response.Status.BAD_REQUEST, Messages.CLIENT_DISABLED);
         }
 
-        redirectUri = RedirectUtils.verifyRedirectUri(session.getContext().getUri(), service, realm, client);
+        redirectUri = RedirectUtils.verifyRedirectUri(session, service, client);
 
         event.client(client.getClientId());
         event.detail(Details.REDIRECT_URI, redirectUri);
