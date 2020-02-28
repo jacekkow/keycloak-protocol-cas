@@ -74,7 +74,7 @@ public class SamlResponseHelper {
                             conditions.setNotOnOrAfter(factory.newXMLGregorianCalendar(GregorianCalendar.from(nowZoned.plusMinutes(5))));
                         }));
                         assertion.add(applyTo(new SAML11AuthenticationStatementType(
-                                URI.create(SAML11Constants.AUTH_METHOD_PASSWORD),
+                                URI.create(SAMLCASConstants.AUTH_METHOD_PASSWORD),
                                 now
                         ), stmt -> stmt.setSubject(toSubject(username))));
                         assertion.addAllStatements(toAttributes(username, attributes));
@@ -141,8 +141,8 @@ public class SamlResponseHelper {
 
     private static URI nameIdFormat(String username) {
         return URI.create(Validation.isEmailValid(username) ?
-                SAML11Constants.FORMAT_EMAIL_ADDRESS :
-                SAML11Constants.FORMAT_UNSPECIFIED
+                SAMLCASConstants.FORMAT_EMAIL_ADDRESS :
+                SAMLCASConstants.FORMAT_UNSPECIFIED
         );
     }
 

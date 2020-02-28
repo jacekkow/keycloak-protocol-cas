@@ -153,7 +153,7 @@ public abstract class AbstractValidateEndpoint {
     protected Map<String, Object> getUserAttributes() {
         UserSessionModel userSession = clientSession.getUserSession();
         // CAS protocol does not support scopes, so pass null scopeParam
-        ClientSessionContext clientSessionCtx = DefaultClientSessionContext.fromClientSessionAndScopeParameter(clientSession, null);
+        ClientSessionContext clientSessionCtx = DefaultClientSessionContext.fromClientSessionAndScopeParameter(clientSession, null, session);
 
         Set<ProtocolMapperModel> mappings = clientSessionCtx.getProtocolMappers();
         KeycloakSessionFactory sessionFactory = session.getKeycloakSessionFactory();
