@@ -1,0 +1,101 @@
+on:
+  schedule:
+    - cron:  '41 8 * * *'
+
+name: Update dependencies
+
+jobs:
+  update:
+    name: Update dependencies
+    runs-on: ubuntu-latest
+    steps:
+      - id: checkout
+        name: Checkout code
+        uses: actions/checkout@v2
+
+      - id: java
+        name: Install Java and Maven
+        uses: actions/setup-java@v1
+        with:
+          java-version: 8
+
+      - id: update_keycloak
+        name: Update Keycloak
+        run: |
+          mvn -B versions:update-property -Dproperty=keycloak.version
+
+      - id: vars
+        name: Get project variables
+        run: |
+          echo -n "::set-output name=versionUpdated::"
+          [ -f pom.xml.versionsBackup ] && echo 1 || echo 0
+          echo -n "::set-output name=keycloakVersion::"
+          mvn -q help:evaluate -Dexpression=keycloak.version -DforceStdout 2> /dev/null | grep -E '^[0-9a-zA-Z.-]+$'
+
+      - id: check_branch
+        name: Check if branch exists
+        run: |
+          echo -n "::set-output name=commit::"
+          if [ '${{ steps.vars.outputs.versionUpdated }}' == '1' ]; then
+            git ls-remote origin 'feature/keycloak-update-${{ steps.vars.outputs.keycloakVersion }}'
+          else
+            git rev-parse HEAD
+          fi
+
+      - id: reset_repo
+        name: Reset repository
+        if: steps.check_branch.outputs.commit == ''
+        run: |
+          git reset --hard
+
+      - id: update_deps
+        name: Update dependencies
+        if: steps.check_branch.outputs.commit == ''
+        run: |
+          mvn versions:set -DnewVersion='${{ steps.vars.outputs.keycloakVersion }}'
+          mvn versions:compare-dependencies \
+            -DremotePom='org.keycloak:keycloak-parent:${{ steps.vars.outputs.keycloakVersion }}' \
+            -DupdateDependencies=true -DupdatePropertyVersions=true
+          mvn versions:use-latest-versions -DallowMajorUpdates=false
+
+      - id: create_commit
+        name: Create commit
+        if: steps.check_branch.outputs.commit == ''
+        run: |
+          git add pom.xml
+          git config user.name 'github-actions'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git commit -m 'Update to Keycloak ${{ steps.vars.outputs.keycloakVersion }}'
+
+      - id: create_branch
+        name: Create branch
+        if: steps.check_branch.outputs.commit == ''
+        run: |
+          git push origin 'HEAD:feature/keycloak-update-${{ steps.vars.outputs.keycloakVersion }}'
+
+      - id: set_token
+        name: Set access token
+        if: steps.check_branch.outputs.commit == ''
+        run: |
+          echo -n "::set-env name=GH_TOKEN::"
+          if [ '${{ secrets.GH_TOKEN }}' != '' ]; then
+            echo '${{ secrets.GH_TOKEN }}'
+          else
+            echo '${{ secrets.GITHUB_TOKEN }}'
+          fi
+
+      - id: create_pull_request_default_token
+        name: Create pull request
+        if: steps.check_branch.outputs.commit == ''
+        uses: actions/github-script@0.9.0
+        with:
+          github-token: ${{ env.GH_TOKEN }}
+          script: |
+            github.pulls.create({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              head: 'feature/keycloak-update-${{ steps.vars.outputs.keycloakVersion }}',
+              base: 'master',
+              title: 'Update to Keycloak ${{ steps.vars.outputs.keycloakVersion }}',
+              body: 'Automatic dependency bump due to release of Keycloak ${{ steps.vars.outputs.keycloakVersion }}'
+            })
