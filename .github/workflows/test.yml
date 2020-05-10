@@ -21,17 +21,13 @@ jobs:
         name: Get project variables
         run: |
           echo -n "::set-output name=keycloakVersion::"
-          mvn -q help:evaluate -Dexpression=keycloak.version -DforceStdout 2> /dev/null
-          echo
+          mvn -q help:evaluate -Dexpression=keycloak.version -DforceStdout 2> /dev/null | grep -E '^[0-9a-zA-Z.-]+$'
           echo -n "::set-output name=artifactId::"
-          mvn -q help:evaluate -Dexpression=project.artifactId -DforceStdout 2> /dev/null
-          echo
+          mvn -q help:evaluate -Dexpression=project.artifactId -DforceStdout 2> /dev/null | grep -E '^[0-9a-zA-Z.-]+$'
           echo -n "::set-output name=projectName::"
-          mvn -q help:evaluate -Dexpression=project.name -DforceStdout 2> /dev/null
-          echo
+          mvn -q help:evaluate -Dexpression=project.name -DforceStdout 2> /dev/null | grep -E '^[0-9a-zA-Z :,.-]+$'
           echo -n "::set-output name=projectVersion::"
-          mvn -q help:evaluate -Dexpression=project.version -DforceStdout 2> /dev/null
-          echo
+          mvn -q help:evaluate -Dexpression=project.version -DforceStdout 2> /dev/null | grep -E '^[0-9a-zA-Z.-]+$'
 
       - name: Build project
         run: |
