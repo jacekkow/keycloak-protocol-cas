@@ -12,6 +12,7 @@ import org.keycloak.protocol.LoginProtocol;
 import org.keycloak.protocol.cas.utils.LogoutHelper;
 import org.keycloak.protocol.oidc.utils.OAuth2Code;
 import org.keycloak.protocol.oidc.utils.OAuth2CodeParser;
+import org.keycloak.services.ErrorPage;
 import org.keycloak.services.managers.ResourceAdminManager;
 import org.keycloak.sessions.AuthenticationSessionModel;
 
@@ -111,7 +112,12 @@ public class CASLoginProtocol implements LoginProtocol {
 
     @Override
     public Response sendError(AuthenticationSessionModel authSession, Error error) {
-        return Response.serverError().entity(error).build();
+        if (authSession.getClientNotes().containsKey(CASLoginProtocol.GATEWAY_PARAM)) {
+            if (error == Error.PASSIVE_INTERACTION_REQUIRED || error == Error.PASSIVE_LOGIN_REQUIRED) {
+                return Response.status(302).location(URI.create(authSession.getRedirectUri())).build();
+            }
+        }
+        return ErrorPage.error(session, authSession, Response.Status.INTERNAL_SERVER_ERROR, error.name());
     }
 
     @Override
