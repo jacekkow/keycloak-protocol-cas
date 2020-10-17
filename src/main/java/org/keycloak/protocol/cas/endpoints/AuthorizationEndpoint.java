@@ -51,6 +51,9 @@ public class AuthorizationEndpoint extends AuthorizationEndpointBase {
         if (renew) {
             authenticationSession.setClientNote(CASLoginProtocol.RENEW_PARAM, "true");
         }
+        if (gateway) {
+            authenticationSession.setClientNote(CASLoginProtocol.GATEWAY_PARAM, "true");
+        }
 
         this.event.event(EventType.LOGIN);
         return handleBrowserAuthenticationRequest(authenticationSession, new CASLoginProtocol(session, realm, session.getContext().getUri(), headers, event), gateway, false);
