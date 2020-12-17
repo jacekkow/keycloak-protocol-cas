@@ -121,7 +121,7 @@ public class CASLoginProtocol implements LoginProtocol {
     }
 
     @Override
-    public void backchannelLogout(UserSessionModel userSession, AuthenticatedClientSessionModel clientSession) {
+    public Response backchannelLogout(UserSessionModel userSession, AuthenticatedClientSessionModel clientSession) {
         String logoutUrl = clientSession.getRedirectUri();
         String serviceTicket = clientSession.getNote(CASLoginProtocol.SESSION_SERVICE_TICKET);
         //check if session is fully authenticated (i.e. serviceValidate has been called)
@@ -130,6 +130,7 @@ public class CASLoginProtocol implements LoginProtocol {
         }
         ClientModel client = clientSession.getClient();
         new ResourceAdminManager(session).logoutClientSession(realm, client, clientSession);
+        return Response.ok().build();
     }
 
     private void sendSingleLogoutRequest(String logoutUrl, String serviceTicket) {
