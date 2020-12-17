@@ -77,11 +77,10 @@ jobs:
         name: Set access token
         if: steps.check_branch.outputs.commit == ''
         run: |
-          echo -n "::set-env name=GH_TOKEN::"
           if [ '${{ secrets.GH_TOKEN }}' != '' ]; then
-            echo '${{ secrets.GH_TOKEN }}'
+            echo 'GH_TOKEN=${{ secrets.GH_TOKEN }}' >> $GITHUB_ENV
           else
-            echo '${{ secrets.GITHUB_TOKEN }}'
+            echo 'GH_TOKEN=${{ secrets.GITHUB_TOKEN }}' >> $GITHUB_ENV
           fi
 
       - id: create_pull_request_default_token
