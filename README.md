@@ -44,6 +44,13 @@ As there is no client ID indication in protocol, the client will be identified b
 configured in Keycloak.
 
 Enter `https://your.keycloak.host/auth/realms/master/protocol/cas` as the CAS URL into your SP.
+This assumes that you use the default `master` realm - if not, modify the URL accordingly.
+
+Note that some client implementations require you to enter login and validate URLs, not CAS URL!
+This manifests with "Page Not Found" error on login attempt
+(see [issue #27](https://github.com/jacekkow/keycloak-protocol-cas/issues/27) for example).
+In such case append `/login` to the CAS URL to get the "login URL".
+Similarly append `/serviceValidate` to get the "validate URL".
 
 ## Disclaimer
 
@@ -55,7 +62,8 @@ This repo is a fork of https://github.com/Doccrazy/keycloak-protocol-cas
 and includes changes for Keycloak 8 and newer that were not merged by the owner for half a year.
 
 ## References
-[1] http://www.keycloak.org
+
+[1] https://www.keycloak.org/
 [2] https://issues.jboss.org/browse/KEYCLOAK-1047 (Support CAS 2.0 SSO protocol)
 [3] https://apereo.github.io/cas/4.2.x/protocol/CAS-Protocol-Specification.html
 [4] https://keycloak.gitbooks.io/server-developer-guide/content/topics/providers.html
