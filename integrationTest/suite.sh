@@ -1,7 +1,7 @@
 #!/bin/bash
 set -e
 
-keycloak_cas_url='http://localhost:8080/auth/realms/master/protocol/cas'
+keycloak_cas_url='http://localhost:8080/realms/master/protocol/cas'
 action_pattern='action="([^"]+)"'
 ticket_pattern='Location: .*\?ticket=(ST-[-A-Za-z0-9_.=]+)'
 

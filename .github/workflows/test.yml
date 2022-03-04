@@ -10,12 +10,14 @@ jobs:
     steps:
       - id: checkout
         name: Checkout code
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
 
-      - name: Install Java and Maven
-        uses: actions/setup-java@v1
+      - id: java
+        name: Install Java and Maven
+        uses: actions/setup-java@v2
         with:
-          java-version: 8
+          distribution: zulu
+          java-version: 11
 
       - id: vars
         name: Get project variables
@@ -34,10 +36,11 @@ jobs:
           mvn -B test package
 
       - name: Upload artifact
-        uses: actions/upload-artifact@v1
+        uses: actions/upload-artifact@v3
         with:
           name: jar
           path: target/${{ steps.vars.outputs.artifactId }}-${{ steps.vars.outputs.projectVersion }}.jar
+          if-no-files-found: error
 
     outputs:
       artifact_id: ${{ steps.vars.outputs.artifactId }}
@@ -49,16 +52,6 @@ jobs:
     name: Test
     runs-on: ubuntu-latest
     needs: build
-    services:
-      keycloak:
-        image: quay.io/keycloak/keycloak:${{ needs.build.outputs.keycloak_version }}
-        env:
-          KEYCLOAK_USER: admin
-          KEYCLOAK_PASSWORD: admin
-        ports:
-          - 8080:8080
-        volumes:
-          - '${{ github.workspace }}:/workspace'
     steps:
       - id: checkout
         name: Checkout code
@@ -66,37 +59,42 @@ jobs:
 
       - id: download_artifact
         name: Download artifact
-        uses: actions/download-artifact@v1
+        uses: actions/download-artifact@v3
         with:
           name: jar
+
+      - id: create_container
+        name: Create Keycloak container
+        run: |
+          docker run -i -t -d -e KEYCLOAK_ADMIN=admin -e KEYCLOAK_ADMIN_PASSWORD=admin -p 8080:8080 --name keycloak "quay.io/keycloak/keycloak:${{ needs.build.outputs.keycloak_version }}" start-dev
 
       - id: deploy
         name: Deploy artifact
         run: |
-          CONTAINER="${{ job.services.keycloak.id }}"
+          CONTAINER="keycloak"
           NAME="${{ needs.build.outputs.artifact_id }}-${{ needs.build.outputs.project_version }}.jar"
-          FILE="/opt/jboss/keycloak/standalone/deployments/${NAME}"
-          docker cp "jar/${NAME}" "${CONTAINER}:/tmp/"
-          docker exec -i "${CONTAINER}" /bin/bash <<EOF
-            cp "/tmp/${NAME}" "${FILE}"
-            for i in {1..60}; do
-              echo -n .
-              [ -f "${FILE}.deployed" ] && echo && echo "Deployment succeeded!" && exit 0
-              [ -f "${FILE}.failed" ] && echo && echo "Deployment failed!" && exit 1
-              sleep 1
-            done
-            echo && echo "Deployment timeout!" && exit 1
-          EOF
+          FILE="/opt/keycloak/providers/${NAME}"
+          docker cp "${NAME}" "${CONTAINER}:${FILE}"
+          docker restart "${CONTAINER}"
+          for i in {1..60}; do
+            if curl --silent --max-time 1 -o /dev/null http://localhost:8080; then
+                echo && echo "Deployment succeeded!" && exit 0
+            else
+                sleep 1
+                echo -n "."
+            fi
+          done
+          echo && echo "Deployment timeout!" && exit 1
 
       - id: configure_keycloak
         name: Configure Keycloak
         run: |
-          CONTAINER="${{ job.services.keycloak.id }}"
+          CONTAINER="keycloak"
           docker exec -i "${CONTAINER}" /bin/bash <<EOF
-            /opt/jboss/keycloak/bin/kcadm.sh config credentials --server http://localhost:8080/auth --realm master --user admin --password admin
-            /opt/jboss/keycloak/bin/kcadm.sh create clients -r master -s clientId=test -s protocol=cas -s enabled=true -s publicClient=true \
+            /opt/keycloak/bin/kcadm.sh config credentials --server http://localhost:8080 --realm master --user admin --password admin
+            /opt/keycloak/bin/kcadm.sh create clients -r master -s clientId=test -s protocol=cas -s enabled=true -s publicClient=true \
               -s 'redirectUris=["http://localhost/*"]' -s baseUrl=http://localhost -s adminUrl=http://localhost
-            /opt/jboss/keycloak/bin/kcadm.sh get serverinfo -r master --fields "providers(login-protocol(providers(cas)))" | grep cas
+            /opt/keycloak/bin/kcadm.sh get serverinfo -r master --fields "providers(login-protocol(providers(cas)))" | grep cas
           EOF
 
       - id: run_tests

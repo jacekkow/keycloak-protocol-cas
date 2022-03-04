@@ -30,10 +30,13 @@ As a rule of thumb plugin version should **match your Keycloak version**.
 
 ## Installation
 
-Installation of a compatible plugin version is simple and can be done without a Keycloak server restart.
+Quarkus is the default distribution method of Keycloak 17.0.0 and newer. For legacy installations using WildFly, please refer to the [old README](https://github.com/jacekkow/keycloak-protocol-cas/blob/16.1.1/README.md).
 
 1. Download the latest release compatible with your Keycloak version from the [releases page](https://github.com/jacekkow/keycloak-protocol-cas/releases).
-2. Copy the JAR file into the `standalone/deployments` directory in your Keycloak server's root.
+2. Put the downloaded JAR file into the `providers/` directory inside Keycloak installation folder.
+3. Stop the Keycloak server.
+4. (Re-)build the installation using `kc.sh build` command.
+5. Start the Keycloak: `kc.sh start`
 
 Remember to update plugin artifact with each Keycloak server upgrade!
 
@@ -43,7 +46,7 @@ To use the new protocol, you have to create a client within Keycloak as usual, s
 As there is no client ID indication in protocol, the client will be identified by the redirect URIs
 configured in Keycloak.
 
-Enter `https://your.keycloak.host/auth/realms/master/protocol/cas` as the CAS URL into your SP.
+Enter `https://your.keycloak.host/realms/master/protocol/cas` as the CAS URL into your SP.
 This assumes that you use the default `master` realm - if not, modify the URL accordingly.
 
 Note that some client implementations require you to enter login and validate URLs, not CAS URL!
