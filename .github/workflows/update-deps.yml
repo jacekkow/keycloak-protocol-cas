@@ -92,7 +92,7 @@ jobs:
         with:
           github-token: ${{ env.GH_TOKEN }}
           script: |
-            github.pulls.create({
+            github.rest.pulls.create({
               owner: context.repo.owner,
               repo: context.repo.repo,
               head: 'feature/keycloak-update-${{ steps.vars.outputs.keycloakVersion }}',
