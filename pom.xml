@@ -22,13 +22,13 @@
 
     <groupId>org.keycloak</groupId>
     <artifactId>keycloak-protocol-cas</artifactId>
-    <version>17.0.0</version>
+    <version>17.0.1</version>
     <name>Keycloak CAS Protocol</name>
     <description />
 
     <properties>
         <keycloak.version>${project.version}</keycloak.version>
-        <jboss.logging.version>3.4.3.Final</jboss.logging.version>
+        <jboss.logging.version>3.4.1.Final</jboss.logging.version>
         <jboss.logging.tools.version>2.2.1.Final</jboss.logging.tools.version>
         <junit.version>4.13.2</junit.version>
 
@@ -103,7 +103,7 @@
         <dependency>
             <groupId>com.jayway.jsonpath</groupId>
             <artifactId>json-path</artifactId>
-            <version>2.6.0</version>
+            <version>2.7.0</version>
             <scope>test</scope>
         </dependency>
     </dependencies>
