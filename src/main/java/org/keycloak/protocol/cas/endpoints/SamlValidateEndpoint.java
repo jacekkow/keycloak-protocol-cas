@@ -36,9 +36,9 @@ public class SamlValidateEndpoint extends AbstractValidateEndpoint {
     @Consumes("text/xml;charset=utf-8")
     @Produces("text/xml;charset=utf-8")
     public Response validate(String input) {
-        MultivaluedMap<String, String> queryParams = request.getUri().getQueryParameters();
+        MultivaluedMap<String, String> queryParams = session.getContext().getUri().getQueryParameters();
         try {
-            String soapAction = Optional.ofNullable(request.getHttpHeaders().getHeaderString("SOAPAction")).map(s -> s.trim().replace("\"", "")).orElse("");
+            String soapAction = Optional.ofNullable(session.getContext().getRequestHeaders().getHeaderString("SOAPAction")).map(s -> s.trim().replace("\"", "")).orElse("");
             if (!soapAction.equals("http://www.oasis-open.org/committees/security")) {
                 throw new CASValidationException(CASErrorCode.INTERNAL_ERROR, "Not a validation request", Response.Status.BAD_REQUEST);
             }
@@ -49,7 +49,7 @@ public class SamlValidateEndpoint extends AbstractValidateEndpoint {
             checkRealm();
             checkSsl();
             checkClient(service);
-            String issuer = Urls.realmIssuer(request.getUri().getBaseUri(), realm.getName());
+            String issuer = Urls.realmIssuer(session.getContext().getUri().getBaseUri(), realm.getName());
             String ticket = getTicket(input);
 
             checkTicket(ticket, renew);
