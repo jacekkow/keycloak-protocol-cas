@@ -46,7 +46,10 @@ public class ValidateEndpoint extends AbstractValidateEndpoint {
     }
 
     protected Response successResponse() {
-        return Response.ok(RESPONSE_OK).type(MediaType.TEXT_PLAIN).build();
+        StringBuilder sb = new StringBuilder(RESPONSE_OK);
+        sb.append(clientSession.getUserSession().getUser().getUsername());
+        sb.append("\n");
+        return Response.ok(sb.toString()).type(MediaType.TEXT_PLAIN).build();
     }
 
     protected Response errorResponse(CASValidationException e) {
