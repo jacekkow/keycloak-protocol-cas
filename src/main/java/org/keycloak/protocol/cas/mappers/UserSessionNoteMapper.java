@@ -12,7 +12,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-public class UserSessionNoteMapper extends AbstractCASProtocolMapper {
+public class UserSessionNoteMapper extends AbstractUserAttributeMapper {
 
     private static final List<ProviderConfigProperty> configProperties = new ArrayList<ProviderConfigProperty>();
 

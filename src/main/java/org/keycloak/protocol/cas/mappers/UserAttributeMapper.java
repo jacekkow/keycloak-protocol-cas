@@ -11,7 +11,7 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
-public class UserAttributeMapper extends AbstractCASProtocolMapper {
+public class UserAttributeMapper extends AbstractUserAttributeMapper {
     private static final List<ProviderConfigProperty> configProperties = new ArrayList<ProviderConfigProperty>();
 
     static {

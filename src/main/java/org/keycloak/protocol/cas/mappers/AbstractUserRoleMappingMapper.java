@@ -28,7 +28,7 @@ import java.util.stream.Collectors;
  *
  * @author <a href="mailto:thomas.darimont@gmail.com">Thomas Darimont</a>
  */
-abstract class AbstractUserRoleMappingMapper extends AbstractCASProtocolMapper {
+abstract class AbstractUserRoleMappingMapper extends AbstractUserAttributeMapper {
 
     /**
      * Retrieves all roles of the current user based on direct roles set to the user, its groups and their parent groups.
