@@ -45,10 +45,6 @@ public class UserSessionNoteMapper extends AbstractUserAttributeMapper {
         return "User Session Note";
     }
 
-    @Override
-    public String getDisplayCategory() {
-        return TOKEN_MAPPER_CATEGORY;
-    }
 
     @Override
     public String getHelpText() {
