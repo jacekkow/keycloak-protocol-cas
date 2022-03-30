@@ -1,0 +1,8 @@
+<SOAP-ENV:Envelope xmlns:SOAP-ENV="http://schemas.xmlsoap.org/soap/envelope/">
+    <SOAP-ENV:Header/>
+    <SOAP-ENV:Body>
+        <samlp:Request xmlns:samlp="urn:oasis:names:tc:SAML:1.0:protocol" MajorVersion="1" MinorVersion="1" RequestID="_example_request" IssueInstant="TIMESTAMP">
+            <samlp:AssertionArtifact>CAS_TICKET</samlp:AssertionArtifact>
+        </samlp:Request>
+    </SOAP-ENV:Body>
+</SOAP-ENV:Envelope>
