@@ -36,6 +36,7 @@ public class CASLoginProtocol implements LoginProtocol {
     public static final String FORMAT_PARAM = "format";
 
     public static final String TICKET_RESPONSE_PARAM = "ticket";
+    public static final String SAMLART_RESPONSE_PARAM = "SAMLart";
 
     public static final String SERVICE_TICKET_PREFIX = "ST-";
     public static final String SESSION_SERVICE_TICKET = "service_ticket";
@@ -102,7 +103,15 @@ public class CASLoginProtocol implements LoginProtocol {
         String code = OAuth2CodeParser.persistCode(session, clientSession, codeData);
 
         KeycloakUriBuilder uriBuilder = KeycloakUriBuilder.fromUri(service);
-        uriBuilder.queryParam(TICKET_RESPONSE_PARAM, SERVICE_TICKET_PREFIX + code);
+
+        String loginTicket = SERVICE_TICKET_PREFIX + code;
+
+        if (authSession.getClientNotes().containsKey(CASLoginProtocol.TARGET_PARAM)) {
+            // This was a SAML 1.1 auth request so return the ticket ID as "SAMLart" instead of "ticket"
+            uriBuilder.queryParam(SAMLART_RESPONSE_PARAM, loginTicket);
+        } else {
+            uriBuilder.queryParam(TICKET_RESPONSE_PARAM, loginTicket);
+        }
 
         URI redirectUri = uriBuilder.build();
 

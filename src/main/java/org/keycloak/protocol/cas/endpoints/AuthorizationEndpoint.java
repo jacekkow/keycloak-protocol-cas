@@ -35,6 +35,13 @@ public class AuthorizationEndpoint extends AuthorizationEndpointBase {
     public Response build() {
         MultivaluedMap<String, String> params = session.getContext().getUri().getQueryParameters();
         String service = params.getFirst(CASLoginProtocol.SERVICE_PARAM);
+
+        boolean isSaml11Request = false;
+        if (service == null && params.containsKey(CASLoginProtocol.TARGET_PARAM)) {
+            // SAML 1.1 authorization uses the TARGET parameter instead of service
+            service = params.getFirst(CASLoginProtocol.TARGET_PARAM);
+            isSaml11Request = true;
+        }
         boolean renew = params.containsKey(CASLoginProtocol.RENEW_PARAM);
         boolean gateway = params.containsKey(CASLoginProtocol.GATEWAY_PARAM);
 
@@ -53,6 +60,10 @@ public class AuthorizationEndpoint extends AuthorizationEndpointBase {
         }
         if (gateway) {
             authenticationSession.setClientNote(CASLoginProtocol.GATEWAY_PARAM, "true");
+        }
+        if (isSaml11Request) {
+            // Flag the session so we can return the ticket as "SAMLart" in the response
+            authenticationSession.setClientNote(CASLoginProtocol.TARGET_PARAM, "true");
         }
 
         this.event.event(EventType.LOGIN);
