@@ -159,7 +159,7 @@ public class CASLoginProtocol implements LoginProtocol {
     }
 
     @Override
-    public Response finishLogout(UserSessionModel userSession) {
+    public Response finishBrowserLogout(UserSessionModel userSession, AuthenticationSessionModel logoutSession) {
         String redirectUri = userSession.getNote(CASLoginProtocol.LOGOUT_REDIRECT_URI);
 
         event.event(EventType.LOGOUT);
