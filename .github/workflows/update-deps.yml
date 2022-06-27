@@ -59,6 +59,7 @@ jobs:
             -DremotePom='org.keycloak:keycloak-parent:${{ steps.vars.outputs.keycloakVersion }}' \
             -DupdateDependencies=true -DupdatePropertyVersions=true
           mvn versions:use-latest-versions -DallowMajorUpdates=false
+          mvn versions:set-property -Dproperty=project.build.outputTimestamp -DnewVersion=`date +%s`
 
       - id: create_commit
         name: Create commit
