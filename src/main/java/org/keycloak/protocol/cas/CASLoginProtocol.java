@@ -97,7 +97,7 @@ public class CASLoginProtocol implements LoginProtocol {
         String service = authSession.getRedirectUri();
         //TODO validate service
 
-        OAuth2Code codeData = new OAuth2Code(UUID.randomUUID(),
+        OAuth2Code codeData = new OAuth2Code(UUID.randomUUID().toString(),
                 Time.currentTime() + userSession.getRealm().getAccessCodeLifespan(),
                 null, null, authSession.getRedirectUri(), null, null);
         String code = OAuth2CodeParser.persistCode(session, clientSession, codeData);
