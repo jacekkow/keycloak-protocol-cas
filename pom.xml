@@ -22,12 +22,13 @@
 
     <groupId>org.keycloak</groupId>
     <artifactId>keycloak-protocol-cas</artifactId>
-    <version>18.0.2</version>
+    <version>19.0.0</version>
     <name>Keycloak CAS Protocol</name>
     <description />
 
     <properties>
         <keycloak.version>${project.version}</keycloak.version>
+        <apache.httpcomponents.version>4.5.13</apache.httpcomponents.version>
         <jboss.logging.version>3.4.1.Final</jboss.logging.version>
         <jboss.logging.tools.version>2.2.1.Final</jboss.logging.tools.version>
         <junit.version>4.13.2</junit.version>
@@ -35,7 +36,7 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <maven.compiler.target>1.8</maven.compiler.target>
         <maven.compiler.source>1.8</maven.compiler.source>
-        <project.build.outputTimestamp>1656367890</project.build.outputTimestamp>
+        <project.build.outputTimestamp>1658998363</project.build.outputTimestamp>
     </properties>
 
     <dependencies>
@@ -58,6 +59,12 @@
             <scope>provided</scope>
         </dependency>
 
+        <dependency>
+            <groupId>org.apache.httpcomponents</groupId>
+            <artifactId>httpclient</artifactId>
+            <version>${apache.httpcomponents.version}</version>
+            <scope>provided</scope>
+        </dependency>
         <dependency>
             <groupId>org.jboss.logging</groupId>
             <artifactId>jboss-logging</artifactId>
@@ -129,7 +136,7 @@
                 <configuration>
                     <archive>
                         <manifestEntries>
-                            <Dependencies>javax.xml.bind.api,org.keycloak.keycloak-core,org.keycloak.keycloak-server-spi,org.keycloak.keycloak-server-spi-private,org.keycloak.keycloak-services,org.keycloak.keycloak-saml-core,org.keycloak.keycloak-saml-core-public</Dependencies>
+                            <Dependencies>javax.xml.bind.api,org.keycloak.keycloak-core,org.keycloak.keycloak-server-spi,org.keycloak.keycloak-server-spi-private,org.keycloak.keycloak-services,org.keycloak.keycloak-saml-core,org.keycloak.keycloak-saml-core-public,org.apache.httpcomponents.httpclient</Dependencies>
                         </manifestEntries>
                     </archive>
                 </configuration>
