@@ -9,6 +9,7 @@ import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 public class GroupMembershipMapper extends AbstractCASProtocolMapper {
     private static final List<ProviderConfigProperty> configProperties = new ArrayList<ProviderConfigProperty>();
@@ -54,7 +55,7 @@ public class GroupMembershipMapper extends AbstractCASProtocolMapper {
                              KeycloakSession session, ClientSessionContext clientSessionCt) {
         List<String> membership = new LinkedList<>();
         boolean fullPath = useFullPath(mappingModel);
-        for (GroupModel group : userSession.getUser().getGroups()) {
+        for (GroupModel group : userSession.getUser().getGroupsStream().collect(Collectors.toSet())) {
             if (fullPath) {
                 membership.add(ModelToRepresentation.buildGroupPath(group));
             } else {
