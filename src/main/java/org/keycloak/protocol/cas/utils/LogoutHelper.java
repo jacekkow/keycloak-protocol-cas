@@ -2,8 +2,11 @@ package org.keycloak.protocol.cas.utils;
 
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
+import org.apache.http.NameValuePair;
 import org.apache.http.client.HttpClient;
+import org.apache.http.client.entity.UrlEncodedFormEntity;
 import org.apache.http.client.methods.HttpPost;
+import org.apache.http.message.BasicNameValuePair;
 import org.apache.http.entity.ContentType;
 import org.apache.http.entity.StringEntity;
 import org.keycloak.connections.httpclient.HttpClientProvider;
@@ -16,6 +19,8 @@ import java.nio.charset.StandardCharsets;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.UUID;
+import java.util.LinkedList;
+import java.util.List;
 
 public class LogoutHelper {
     //although it looks alike, the CAS SLO protocol has nothing to do with SAML; so we build the format
@@ -25,12 +30,14 @@ public class LogoutHelper {
             "  <samlp:SessionIndex>$SESSION_IDENTIFIER</samlp:SessionIndex>\n" +
             "</samlp:LogoutRequest>";
 
-    public static HttpEntity buildSingleLogoutRequest(String serviceTicket) {
+    public static HttpEntity buildSingleLogoutRequest(String serviceTicket) throws IOException {
         String id = "ID_" + UUID.randomUUID().toString();
         String issueInstant = new SimpleDateFormat("yyyy-MM-dd'T'H:mm:ss").format(new Date());
         String document = TEMPLATE.replace("$ID", id).replace("$ISSUE_INSTANT", issueInstant)
                 .replace("$SESSION_IDENTIFIER", serviceTicket);
-        return new StringEntity(document, ContentType.APPLICATION_XML.withCharset(StandardCharsets.UTF_8));
+        List<NameValuePair> parameters = new LinkedList<>();
+        parameters.add(new BasicNameValuePair("logoutRequest", document));
+        return new UrlEncodedFormEntity(parameters);
     }
 
     public static void postWithRedirect(KeycloakSession session, String url, HttpEntity postBody) throws IOException {

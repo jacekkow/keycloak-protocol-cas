@@ -143,8 +143,8 @@ public class CASLoginProtocol implements LoginProtocol {
     }
 
     private void sendSingleLogoutRequest(String logoutUrl, String serviceTicket) {
-        HttpEntity requestEntity = LogoutHelper.buildSingleLogoutRequest(serviceTicket);
         try {
+            HttpEntity requestEntity = LogoutHelper.buildSingleLogoutRequest(serviceTicket);
             LogoutHelper.postWithRedirect(session, logoutUrl, requestEntity);
             logger.debug("Sent CAS single logout for service " + logoutUrl);
         } catch (IOException e) {
