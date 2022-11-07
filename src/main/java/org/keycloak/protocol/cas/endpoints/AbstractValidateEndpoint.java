@@ -22,6 +22,7 @@ import javax.ws.rs.core.Response;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 public abstract class AbstractValidateEndpoint {
     protected final Logger logger = Logger.getLogger(getClass());
@@ -61,7 +62,7 @@ public abstract class AbstractValidateEndpoint {
             throw new CASValidationException(CASErrorCode.INVALID_REQUEST, "Missing parameter: " + CASLoginProtocol.SERVICE_PARAM, Response.Status.BAD_REQUEST);
         }
 
-        client = realm.getClients().stream()
+        client = realm.getClientsStream()
                 .filter(c -> CASLoginProtocol.LOGIN_PROTOCOL.equals(c.getProtocol()))
                 .filter(c -> RedirectUtils.verifyRedirectUri(session, service, c) != null)
                 .findFirst().orElse(null);
@@ -155,7 +156,7 @@ public abstract class AbstractValidateEndpoint {
         // CAS protocol does not support scopes, so pass null scopeParam
         ClientSessionContext clientSessionCtx = DefaultClientSessionContext.fromClientSessionAndScopeParameter(clientSession, null, session);
 
-        Set<ProtocolMapperModel> mappings = clientSessionCtx.getProtocolMappers();
+        Set<ProtocolMapperModel> mappings = clientSessionCtx.getProtocolMappersStream().collect(Collectors.toSet());
         KeycloakSessionFactory sessionFactory = session.getKeycloakSessionFactory();
         Map<String, Object> attributes = new HashMap<>();
         for (ProtocolMapperModel mapping : mappings) {
