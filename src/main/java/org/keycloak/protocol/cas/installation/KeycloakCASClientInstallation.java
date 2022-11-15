@@ -22,7 +22,7 @@ public class KeycloakCASClientInstallation implements ClientInstallationProvider
         String bindingUrl = RealmsResource.protocolUrl(bindingUrlBuilder)
                 .build(realm.getName(), CASLoginProtocol.LOGIN_PROTOCOL).toString();
         String description = "CAS Server URL: " + bindingUrl + "\n" +
-                "CAS Protocol: CAS 2.0/3.0 (SAML 1.1 is not supported)\n" +
+                "CAS Protocol: CAS 2.0/3.0, SAML 1.1\n" +
                 "Use CAS REST API: false (unsupported)";
         return Response.ok(description, MediaType.TEXT_PLAIN_TYPE).build();
     }
