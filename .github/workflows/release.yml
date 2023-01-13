@@ -16,7 +16,7 @@ jobs:
 
       - id: java
         name: Install Java and Maven
-        uses: actions/setup-java@v2
+        uses: actions/setup-java@v3
         with:
           distribution: zulu
           java-version: 11
