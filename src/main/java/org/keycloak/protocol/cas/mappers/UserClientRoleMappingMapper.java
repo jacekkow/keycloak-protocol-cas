@@ -51,11 +51,6 @@ public class UserClientRoleMappingMapper extends AbstractUserRoleMappingMapper {
     }
 
     @Override
-    public String getDisplayCategory() {
-        return TOKEN_MAPPER_CATEGORY;
-    }
-
-    @Override
     public String getHelpText() {
         return "Map a user client role to a token claim.";
     }

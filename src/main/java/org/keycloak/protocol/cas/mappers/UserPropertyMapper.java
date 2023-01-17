@@ -9,7 +9,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-public class UserPropertyMapper extends AbstractCASProtocolMapper {
+public class UserPropertyMapper extends AbstractUserAttributeMapper {
     private static final List<ProviderConfigProperty> configProperties = new ArrayList<ProviderConfigProperty>();
 
     static {

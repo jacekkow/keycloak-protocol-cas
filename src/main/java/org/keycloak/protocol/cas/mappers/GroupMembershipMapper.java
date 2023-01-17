@@ -11,7 +11,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-public class GroupMembershipMapper extends AbstractCASProtocolMapper {
+public class GroupMembershipMapper extends AbstractUserAttributeMapper {
     private static final List<ProviderConfigProperty> configProperties = new ArrayList<ProviderConfigProperty>();
 
     private static final String FULL_PATH = "full.path";

@@ -46,10 +46,6 @@ public class UserRealmRoleMappingMapper extends AbstractUserRoleMappingMapper {
         return "User Realm Role";
     }
 
-    @Override
-    public String getDisplayCategory() {
-        return TOKEN_MAPPER_CATEGORY;
-    }
 
     @Override
     public String getHelpText() {
