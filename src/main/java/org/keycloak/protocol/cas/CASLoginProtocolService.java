@@ -42,7 +42,7 @@ public class CASLoginProtocolService {
 
     @Path("logout")
     public Object logout() {
-        LogoutEndpoint endpoint = new LogoutEndpoint(realm, event);
+        LogoutEndpoint endpoint = new LogoutEndpoint(realm);
         ResteasyProviderFactory.getInstance().injectProperties(endpoint);
         return endpoint;
     }

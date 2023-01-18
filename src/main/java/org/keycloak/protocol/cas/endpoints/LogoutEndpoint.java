@@ -4,7 +4,10 @@ import org.jboss.logging.Logger;
 import org.jboss.resteasy.annotations.cache.NoCache;
 import org.jboss.resteasy.spi.HttpRequest;
 import org.keycloak.common.ClientConnection;
+import org.keycloak.events.Details;
+import org.keycloak.events.Errors;
 import org.keycloak.events.EventBuilder;
+import org.keycloak.events.EventType;
 import org.keycloak.models.ClientModel;
 import org.keycloak.models.KeycloakSession;
 import org.keycloak.models.RealmModel;
@@ -37,13 +40,11 @@ public class LogoutEndpoint {
     private HttpHeaders headers;
 
     private RealmModel realm;
-    private EventBuilder event;
     private ClientModel client;
     private String redirectUri;
 
-    public LogoutEndpoint(RealmModel realm, EventBuilder event) {
+    public LogoutEndpoint(RealmModel realm) {
         this.realm = realm;
-        this.event = event;
     }
 
     @GET
@@ -55,7 +56,10 @@ public class LogoutEndpoint {
         if (authResult != null) {
             UserSessionModel userSession = authResult.getSession();
             userSession.setNote(AuthenticationManager.KEYCLOAK_LOGOUT_PROTOCOL, CASLoginProtocol.LOGIN_PROTOCOL);
-            if (redirectUri != null) userSession.setNote(CASLoginProtocol.LOGOUT_REDIRECT_URI, redirectUri);
+
+            if (redirectUri != null) {
+                userSession.setNote(CASLoginProtocol.LOGOUT_REDIRECT_URI, redirectUri);
+            }
 
             logger.debug("Initiating CAS browser logout");
             Response response =  AuthenticationManager.browserLogout(session, realm, authResult.getSession(), session.getContext().getUri(), clientConnection, headers);

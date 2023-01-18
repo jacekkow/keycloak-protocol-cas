@@ -4,6 +4,7 @@ import org.apache.http.HttpEntity;
 import org.jboss.logging.Logger;
 import org.keycloak.common.util.KeycloakUriBuilder;
 import org.keycloak.common.util.Time;
+import org.keycloak.events.Details;
 import org.keycloak.events.EventBuilder;
 import org.keycloak.events.EventType;
 import org.keycloak.forms.login.LoginFormsProvider;
@@ -162,16 +163,22 @@ public class CASLoginProtocol implements LoginProtocol {
     public Response finishBrowserLogout(UserSessionModel userSession, AuthenticationSessionModel logoutSession) {
         String redirectUri = userSession.getNote(CASLoginProtocol.LOGOUT_REDIRECT_URI);
 
-        event.event(EventType.LOGOUT);
-        event.user(userSession.getUser()).session(userSession).success();
+        event.event(EventType.LOGOUT)
+            .user(userSession.getUser())
+            .session(userSession)
+            .detail(Details.USERNAME, userSession.getUser().getUsername());
 
         if (redirectUri != null) {
+            event.detail(Details.REDIRECT_URI, redirectUri);
+            event.success();
             return Response.status(302).location(URI.create(redirectUri)).build();
-        } else {
-            LoginFormsProvider infoPage = session.getProvider(LoginFormsProvider.class).setSuccess("Logout successful");
-            infoPage.setAttribute("skipLink", true);
-            return infoPage.createInfoPage();
         }
+
+        event.success();
+
+        LoginFormsProvider infoPage = session.getProvider(LoginFormsProvider.class).setSuccess("Logout successful");
+        infoPage.setAttribute("skipLink", true);
+        return infoPage.createInfoPage();
     }
 
     @Override

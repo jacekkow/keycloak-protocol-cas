@@ -3,6 +3,7 @@ package org.keycloak.protocol.cas.endpoints;
 import org.jboss.logging.Logger;
 import org.jboss.resteasy.spi.HttpRequest;
 import org.keycloak.common.ClientConnection;
+import org.keycloak.events.Details;
 import org.keycloak.events.Errors;
 import org.keycloak.events.EventBuilder;
 import org.keycloak.models.*;
@@ -61,6 +62,8 @@ public abstract class AbstractValidateEndpoint {
             event.error(Errors.INVALID_REQUEST);
             throw new CASValidationException(CASErrorCode.INVALID_REQUEST, "Missing parameter: " + CASLoginProtocol.SERVICE_PARAM, Response.Status.BAD_REQUEST);
         }
+
+        event.detail(Details.REDIRECT_URI, service);
 
         client = realm.getClientsStream()
                 .filter(c -> CASLoginProtocol.LOGIN_PROTOCOL.equals(c.getProtocol()))
