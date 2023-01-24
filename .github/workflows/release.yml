@@ -24,14 +24,14 @@ jobs:
       - id: vars
         name: Get project variables
         run: |
-          echo -n "::set-output name=keycloakVersion::"
-          mvn -q help:evaluate -Dexpression=keycloak.version -DforceStdout 2> /dev/null | grep -E '^[0-9a-zA-Z.-]+$'
-          echo -n "::set-output name=artifactId::"
-          mvn -q help:evaluate -Dexpression=project.artifactId -DforceStdout 2> /dev/null | grep -E '^[0-9a-zA-Z.-]+$'
-          echo -n "::set-output name=projectName::"
-          mvn -q help:evaluate -Dexpression=project.name -DforceStdout 2> /dev/null | grep -E '^[0-9a-zA-Z :,.-]+$'
-          echo -n "::set-output name=projectVersion::"
-          mvn -q help:evaluate -Dexpression=project.version -DforceStdout 2> /dev/null | grep -E '^[0-9a-zA-Z.-]+$'
+          echo -n "keycloakVersion=" >> $GITHUB_OUTPUT
+          mvn -q help:evaluate -Dexpression=keycloak.version -DforceStdout 2> /dev/null | grep -E '^[0-9a-zA-Z.-]+$' >> $GITHUB_OUTPUT
+          echo -n "artifactId=" >> $GITHUB_OUTPUT
+          mvn -q help:evaluate -Dexpression=project.artifactId -DforceStdout 2> /dev/null | grep -E '^[0-9a-zA-Z.-]+$' >> $GITHUB_OUTPUT
+          echo -n "projectName=" >> $GITHUB_OUTPUT
+          mvn -q help:evaluate -Dexpression=project.name -DforceStdout 2> /dev/null | grep -E '^[0-9a-zA-Z :,.-]+$' >> $GITHUB_OUTPUT
+          echo -n "projectVersion=" >> $GITHUB_OUTPUT
+          mvn -q help:evaluate -Dexpression=project.version -DforceStdout 2> /dev/null | grep -E '^[0-9a-zA-Z.-]+$' >> $GITHUB_OUTPUT
 
       - name: Build project
         run: |

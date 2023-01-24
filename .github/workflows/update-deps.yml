@@ -29,20 +29,23 @@ jobs:
       - id: vars
         name: Get project variables
         run: |
-          echo -n "::set-output name=versionUpdated::"
-          [ -f pom.xml.versionsBackup ] && echo 1 || echo 0
-          echo -n "::set-output name=keycloakVersion::"
-          mvn -q help:evaluate -Dexpression=keycloak.version -DforceStdout 2> /dev/null | grep -E '^[0-9a-zA-Z.-]+$'
+          if [ -f pom.xml.versionsBackup ]; then
+            echo "versionUpdated=1"
+          else
+            echo "versionUpdated=0"
+          fi >> $GITHUB_OUTPUT
+          echo -n "keycloakVersion=" >> $GITHUB_OUTPUT
+          mvn -q help:evaluate -Dexpression=keycloak.version -DforceStdout 2> /dev/null | grep -E '^[0-9a-zA-Z.-]+$' >> $GITHUB_OUTPUT
 
       - id: check_branch
         name: Check if branch exists
         run: |
-          echo -n "::set-output name=commit::"
+          echo -n "commit=" >> $GITHUB_OUTPUT
           if [ '${{ steps.vars.outputs.versionUpdated }}' == '1' ]; then
             git ls-remote origin 'feature/keycloak-update-${{ steps.vars.outputs.keycloakVersion }}'
           else
             git rev-parse HEAD
-          fi
+          fi >> $GITHUB_OUTPUT
 
       - id: reset_repo
         name: Reset repository
