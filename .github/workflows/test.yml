@@ -55,7 +55,7 @@ jobs:
     steps:
       - id: checkout
         name: Checkout code
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
 
       - id: download_artifact
         name: Download artifact
