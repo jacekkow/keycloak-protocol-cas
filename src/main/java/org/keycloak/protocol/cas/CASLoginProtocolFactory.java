@@ -86,8 +86,8 @@ public class CASLoginProtocolFactory extends AbstractLoginProtocolFactory {
     }
 
     @Override
-    public Object createProtocolEndpoint(RealmModel realm, EventBuilder event) {
-        return new CASLoginProtocolService(realm, event);
+    public Object createProtocolEndpoint(KeycloakSession session, EventBuilder event) {
+        return new CASLoginProtocolService(session, event);
     }
 
     @Override

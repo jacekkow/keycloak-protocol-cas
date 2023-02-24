@@ -12,11 +12,9 @@ import javax.ws.rs.Path;
 import javax.ws.rs.core.*;
 
 public class CASLoginProtocolService {
+    private KeycloakSession session;
     private RealmModel realm;
     private EventBuilder event;
-
-    @Context
-    private KeycloakSession session;
 
     @Context
     private HttpHeaders headers;
@@ -24,8 +22,9 @@ public class CASLoginProtocolService {
     @Context
     private HttpRequest request;
 
-    public CASLoginProtocolService(RealmModel realm, EventBuilder event) {
-        this.realm = realm;
+    public CASLoginProtocolService(KeycloakSession session, EventBuilder event) {
+        this.session = session;
+        this.realm = session.getContext().getRealm();
         this.event = event;
     }
 
@@ -35,7 +34,7 @@ public class CASLoginProtocolService {
 
     @Path("login")
     public Object login() {
-        AuthorizationEndpoint endpoint = new AuthorizationEndpoint(realm, event);
+        AuthorizationEndpoint endpoint = new AuthorizationEndpoint(session, event);
         ResteasyProviderFactory.getInstance().injectProperties(endpoint);
         return endpoint;
     }

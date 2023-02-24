@@ -6,7 +6,7 @@ import org.keycloak.events.Errors;
 import org.keycloak.events.EventBuilder;
 import org.keycloak.events.EventType;
 import org.keycloak.models.ClientModel;
-import org.keycloak.models.RealmModel;
+import org.keycloak.models.KeycloakSession;
 import org.keycloak.protocol.AuthorizationEndpointBase;
 import org.keycloak.protocol.cas.CASLoginProtocol;
 import org.keycloak.protocol.oidc.utils.RedirectUtils;
@@ -26,8 +26,8 @@ public class AuthorizationEndpoint extends AuthorizationEndpointBase {
     private AuthenticationSessionModel authenticationSession;
     private String redirectUri;
 
-    public AuthorizationEndpoint(RealmModel realm, EventBuilder event) {
-        super(realm, event);
+    public AuthorizationEndpoint(KeycloakSession session, EventBuilder event) {
+        super(session, event);
         event.event(EventType.LOGIN);
     }
 
@@ -53,7 +53,7 @@ public class AuthorizationEndpoint extends AuthorizationEndpointBase {
         updateAuthenticationSession();
 
         // So back button doesn't work
-        CacheControlUtil.noBackButtonCacheControlHeader();
+        CacheControlUtil.noBackButtonCacheControlHeader(session);
 
         if (renew) {
             authenticationSession.setClientNote(CASLoginProtocol.RENEW_PARAM, "true");
