@@ -100,7 +100,8 @@ public class CASLoginProtocol implements LoginProtocol {
 
         OAuth2Code codeData = new OAuth2Code(UUID.randomUUID().toString(),
                 Time.currentTime() + userSession.getRealm().getAccessCodeLifespan(),
-                null, null, authSession.getRedirectUri(), null, null);
+                null, null, authSession.getRedirectUri(), null, null,
+                userSession.getId());
         String code = OAuth2CodeParser.persistCode(session, clientSession, codeData);
 
         KeycloakUriBuilder uriBuilder = KeycloakUriBuilder.fromUri(service);
