@@ -23,6 +23,7 @@ import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.Response;
+import java.net.URI;
 
 public class LogoutEndpoint {
     private static final Logger logger = Logger.getLogger(LogoutEndpoint.class);
@@ -66,6 +67,12 @@ public class LogoutEndpoint {
             logger.debug("finishing CAS browser logout");
             return response;
         }
+
+        if (redirectUri != null) {
+            logger.debugv("no active session, redirecting to {0}", redirectUri);
+            return Response.status(302).location(URI.create(redirectUri)).build();
+        }
+
         return ErrorPage.error(session, null, Response.Status.BAD_REQUEST, Messages.FAILED_LOGOUT);
     }
 
