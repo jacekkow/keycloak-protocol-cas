@@ -22,7 +22,7 @@
 
     <groupId>org.keycloak</groupId>
     <artifactId>keycloak-protocol-cas</artifactId>
-    <version>21.0.2</version>
+    <version>21.1.0</version>
     <name>Keycloak CAS Protocol</name>
     <description />
 
@@ -36,7 +36,7 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <maven.compiler.target>1.8</maven.compiler.target>
         <maven.compiler.source>1.8</maven.compiler.source>
-        <project.build.outputTimestamp>1680252449</project.build.outputTimestamp>
+        <project.build.outputTimestamp>1681894044</project.build.outputTimestamp>
     </properties>
 
     <dependencies>
