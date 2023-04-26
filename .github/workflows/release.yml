@@ -5,6 +5,8 @@ on:
 
 name: Release
 
+permissions: {}
+
 jobs:
   build:
     name: Build

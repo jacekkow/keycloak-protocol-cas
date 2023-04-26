@@ -3,6 +3,8 @@ on:
 
 name: Test
 
+permissions: {}
+
 jobs:
   build:
     name: Build

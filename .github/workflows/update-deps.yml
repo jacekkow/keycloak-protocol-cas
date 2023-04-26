@@ -5,10 +5,14 @@ on:
 
 name: Update dependencies
 
+permissions: {}
+
 jobs:
   update:
     name: Update dependencies
     runs-on: ubuntu-latest
+    permissions:
+      pull-requests: write
     steps:
       - id: checkout
         name: Checkout code
