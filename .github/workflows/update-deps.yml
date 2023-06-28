@@ -12,6 +12,7 @@ jobs:
     name: Update dependencies
     runs-on: ubuntu-latest
     permissions:
+      contents: write
       pull-requests: write
     steps:
       - id: checkout
