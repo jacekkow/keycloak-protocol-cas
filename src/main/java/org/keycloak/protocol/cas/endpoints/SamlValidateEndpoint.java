@@ -1,5 +1,10 @@
 package org.keycloak.protocol.cas.endpoints;
 
+import jakarta.ws.rs.Consumes;
+import jakarta.ws.rs.POST;
+import jakarta.ws.rs.Produces;
+import jakarta.ws.rs.core.MultivaluedMap;
+import jakarta.ws.rs.core.Response;
 import org.keycloak.dom.saml.v1.protocol.SAML11ResponseType;
 import org.keycloak.events.EventBuilder;
 import org.keycloak.events.EventType;
@@ -12,18 +17,16 @@ import org.keycloak.protocol.cas.utils.CASValidationException;
 import org.keycloak.services.Urls;
 import org.xml.sax.InputSource;
 
-import javax.ws.rs.Consumes;
-import javax.ws.rs.POST;
-import javax.ws.rs.Produces;
-import javax.ws.rs.core.MultivaluedMap;
-import javax.ws.rs.core.Response;
 import javax.xml.namespace.NamespaceContext;
 import javax.xml.xpath.XPath;
 import javax.xml.xpath.XPathExpression;
 import javax.xml.xpath.XPathExpressionException;
 import javax.xml.xpath.XPathFactory;
 import java.io.StringReader;
-import java.util.*;
+import java.util.Collections;
+import java.util.Iterator;
+import java.util.Map;
+import java.util.Optional;
 
 import static org.keycloak.protocol.cas.CASLoginProtocol.TARGET_PARAM;
 

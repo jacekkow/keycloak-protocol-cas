@@ -1,6 +1,6 @@
 package org.keycloak.protocol.cas.representations;
 
-import javax.xml.bind.annotation.XmlRootElement;
+import jakarta.xml.bind.annotation.XmlRootElement;
 
 @XmlRootElement(name = "serviceResponse")
 public class CASServiceResponse {

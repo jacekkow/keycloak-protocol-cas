@@ -1,6 +1,6 @@
 package org.keycloak.protocol.cas;
 
-import com.sun.xml.bind.v2.util.FatalAdapter;
+import org.glassfish.jaxb.runtime.v2.util.FatalAdapter;
 import org.w3c.dom.Document;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
