@@ -1,5 +1,8 @@
 package org.keycloak.protocol.cas;
 
+import jakarta.ws.rs.core.HttpHeaders;
+import jakarta.ws.rs.core.Response;
+import jakarta.ws.rs.core.UriInfo;
 import org.apache.http.HttpEntity;
 import org.jboss.logging.Logger;
 import org.keycloak.common.util.KeycloakUriBuilder;
@@ -17,9 +20,6 @@ import org.keycloak.services.ErrorPage;
 import org.keycloak.services.managers.ResourceAdminManager;
 import org.keycloak.sessions.AuthenticationSessionModel;
 
-import javax.ws.rs.core.HttpHeaders;
-import javax.ws.rs.core.Response;
-import javax.ws.rs.core.UriInfo;
 import java.io.IOException;
 import java.net.URI;
 import java.util.UUID;

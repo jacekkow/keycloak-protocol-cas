@@ -1,5 +1,6 @@
 package org.keycloak.protocol.cas;
 
+import jakarta.ws.rs.core.Response;
 import org.junit.Test;
 import org.keycloak.dom.saml.v1.protocol.SAML11ResponseType;
 import org.keycloak.protocol.cas.representations.CASErrorCode;
@@ -7,7 +8,6 @@ import org.keycloak.protocol.cas.representations.SamlResponseHelper;
 import org.keycloak.protocol.cas.utils.CASValidationException;
 import org.w3c.dom.Document;
 
-import javax.ws.rs.core.Response;
 import java.util.Collections;
 
 import static org.junit.Assert.assertNotNull;

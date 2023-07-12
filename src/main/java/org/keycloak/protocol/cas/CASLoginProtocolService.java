@@ -1,5 +1,10 @@
 package org.keycloak.protocol.cas;
 
+import jakarta.ws.rs.Path;
+import jakarta.ws.rs.core.Context;
+import jakarta.ws.rs.core.HttpHeaders;
+import jakarta.ws.rs.core.Response;
+import jakarta.ws.rs.core.UriBuilder;
 import org.jboss.resteasy.spi.HttpRequest;
 import org.jboss.resteasy.spi.ResteasyProviderFactory;
 import org.keycloak.events.EventBuilder;
@@ -7,9 +12,6 @@ import org.keycloak.models.KeycloakSession;
 import org.keycloak.models.RealmModel;
 import org.keycloak.protocol.cas.endpoints.*;
 import org.keycloak.services.resources.RealmsResource;
-
-import javax.ws.rs.Path;
-import javax.ws.rs.core.*;
 
 public class CASLoginProtocolService {
     private KeycloakSession session;

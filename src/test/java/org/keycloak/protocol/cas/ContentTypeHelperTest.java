@@ -1,13 +1,12 @@
 package org.keycloak.protocol.cas;
 
+import jakarta.ws.rs.core.HttpHeaders;
+import jakarta.ws.rs.core.MediaType;
 import org.jboss.resteasy.mock.MockHttpRequest;
 import org.jboss.resteasy.mock.MockHttpResponse;
 import org.jboss.resteasy.specimpl.RequestImpl;
 import org.junit.Test;
 import org.keycloak.protocol.cas.utils.ContentTypeHelper;
-
-import javax.ws.rs.core.HttpHeaders;
-import javax.ws.rs.core.MediaType;
 
 import static org.junit.Assert.assertEquals;
 

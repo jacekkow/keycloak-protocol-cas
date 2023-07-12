@@ -1,9 +1,8 @@
 package org.keycloak.protocol.cas.utils;
 
+import jakarta.ws.rs.WebApplicationException;
+import jakarta.ws.rs.core.Response;
 import org.keycloak.protocol.cas.representations.CASErrorCode;
-
-import javax.ws.rs.WebApplicationException;
-import javax.ws.rs.core.Response;
 
 public class CASValidationException extends WebApplicationException {
     private final CASErrorCode error;

@@ -1,5 +1,8 @@
 package org.keycloak.protocol.cas.installation;
 
+import jakarta.ws.rs.core.MediaType;
+import jakarta.ws.rs.core.Response;
+import jakarta.ws.rs.core.UriBuilder;
 import org.keycloak.Config;
 import org.keycloak.models.ClientModel;
 import org.keycloak.models.KeycloakSession;
@@ -9,9 +12,6 @@ import org.keycloak.protocol.ClientInstallationProvider;
 import org.keycloak.protocol.cas.CASLoginProtocol;
 import org.keycloak.services.resources.RealmsResource;
 
-import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.Response;
-import javax.ws.rs.core.UriBuilder;
 import java.net.URI;
 
 public class KeycloakCASClientInstallation implements ClientInstallationProvider {
