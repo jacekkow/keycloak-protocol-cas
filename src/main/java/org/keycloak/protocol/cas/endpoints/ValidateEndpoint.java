@@ -7,6 +7,7 @@ import jakarta.ws.rs.core.Response;
 import org.jboss.resteasy.annotations.cache.NoCache;
 import org.keycloak.events.EventBuilder;
 import org.keycloak.events.EventType;
+import org.keycloak.models.KeycloakSession;
 import org.keycloak.models.RealmModel;
 import org.keycloak.protocol.cas.CASLoginProtocol;
 import org.keycloak.protocol.cas.utils.CASValidationException;
@@ -16,8 +17,8 @@ public class ValidateEndpoint extends AbstractValidateEndpoint {
     private static final String RESPONSE_OK = "yes\n";
     private static final String RESPONSE_FAILED = "no\n";
 
-    public ValidateEndpoint(RealmModel realm, EventBuilder event) {
-        super(realm, event);
+    public ValidateEndpoint(KeycloakSession session, RealmModel realm, EventBuilder event) {
+        super(session, realm, event);
     }
 
     @GET

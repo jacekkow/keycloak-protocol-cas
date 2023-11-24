@@ -18,12 +18,6 @@ public class CASLoginProtocolService {
     private RealmModel realm;
     private EventBuilder event;
 
-    @Context
-    private HttpHeaders headers;
-
-    @Context
-    private HttpRequest request;
-
     public CASLoginProtocolService(KeycloakSession session, EventBuilder event) {
         this.session = session;
         this.realm = session.getContext().getRealm();
@@ -43,28 +37,28 @@ public class CASLoginProtocolService {
 
     @Path("logout")
     public Object logout() {
-        LogoutEndpoint endpoint = new LogoutEndpoint(realm);
+        LogoutEndpoint endpoint = new LogoutEndpoint(session, realm);
         ResteasyProviderFactory.getInstance().injectProperties(endpoint);
         return endpoint;
     }
 
     @Path("validate")
     public Object validate() {
-        ValidateEndpoint endpoint = new ValidateEndpoint(realm, event);
+        ValidateEndpoint endpoint = new ValidateEndpoint(session, realm, event);
         ResteasyProviderFactory.getInstance().injectProperties(endpoint);
         return endpoint;
     }
 
     @Path("samlValidate")
     public Object validateSaml11() {
-        SamlValidateEndpoint endpoint = new SamlValidateEndpoint(realm, event);
+        SamlValidateEndpoint endpoint = new SamlValidateEndpoint(session, realm, event);
         ResteasyProviderFactory.getInstance().injectProperties(endpoint);
         return endpoint;
     }
 
     @Path("serviceValidate")
     public Object serviceValidate() {
-        ServiceValidateEndpoint endpoint = new ServiceValidateEndpoint(realm, event);
+        ServiceValidateEndpoint endpoint = new ServiceValidateEndpoint(session, realm, event);
         ResteasyProviderFactory.getInstance().injectProperties(endpoint);
         return endpoint;
     }

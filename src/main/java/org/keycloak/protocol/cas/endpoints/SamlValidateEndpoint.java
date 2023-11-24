@@ -8,6 +8,7 @@ import jakarta.ws.rs.core.Response;
 import org.keycloak.dom.saml.v1.protocol.SAML11ResponseType;
 import org.keycloak.events.EventBuilder;
 import org.keycloak.events.EventType;
+import org.keycloak.models.KeycloakSession;
 import org.keycloak.models.RealmModel;
 import org.keycloak.models.UserModel;
 import org.keycloak.protocol.cas.CASLoginProtocol;
@@ -31,8 +32,8 @@ import java.util.Optional;
 import static org.keycloak.protocol.cas.CASLoginProtocol.TARGET_PARAM;
 
 public class SamlValidateEndpoint extends AbstractValidateEndpoint {
-    public SamlValidateEndpoint(RealmModel realm, EventBuilder event) {
-        super(realm, event.event(EventType.CODE_TO_TOKEN));
+    public SamlValidateEndpoint(KeycloakSession session, RealmModel realm, EventBuilder event) {
+        super(session, realm, event.event(EventType.CODE_TO_TOKEN));
     }
 
     @POST
