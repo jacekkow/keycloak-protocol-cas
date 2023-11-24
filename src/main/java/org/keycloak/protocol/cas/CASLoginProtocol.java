@@ -140,7 +140,7 @@ public class CASLoginProtocol implements LoginProtocol {
             sendSingleLogoutRequest(logoutUrl, serviceTicket);
         }
         ClientModel client = clientSession.getClient();
-        new ResourceAdminManager(session).logoutClientSession(realm, client, clientSession);
+        new ResourceAdminManager(session).logoutClientSession(realm, client, clientSession).close();
         return Response.ok().build();
     }
 
