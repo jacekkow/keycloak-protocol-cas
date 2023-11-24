@@ -23,7 +23,6 @@ public class LogoutEndpoint {
     private KeycloakSession session;
 
     private RealmModel realm;
-    private ClientModel client;
     private String redirectUri;
 
     public LogoutEndpoint(KeycloakSession session, RealmModel realm) {
@@ -64,7 +63,7 @@ public class LogoutEndpoint {
             return;
         }
 
-        client = realm.getClientsStream()
+        ClientModel client = realm.getClientsStream()
                 .filter(c -> CASLoginProtocol.LOGIN_PROTOCOL.equals(c.getProtocol()))
                 .filter(c -> RedirectUtils.verifyRedirectUri(session, service, c) != null)
                 .findFirst().orElse(null);
