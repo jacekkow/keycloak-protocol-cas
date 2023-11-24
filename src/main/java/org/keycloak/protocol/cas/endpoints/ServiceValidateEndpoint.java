@@ -37,7 +37,7 @@ public class ServiceValidateEndpoint extends ValidateEndpoint {
     }
 
     private Response prepare(Response.Status status, CASServiceResponse serviceResponse) {
-        MediaType responseMediaType = new ContentTypeHelper(request, restRequest, session.getContext().getUri()).selectResponseType();
+        MediaType responseMediaType = new ContentTypeHelper(session.getContext().getUri()).selectResponseType();
         return ServiceResponseHelper.createResponse(status, responseMediaType, serviceResponse);
     }
 }
