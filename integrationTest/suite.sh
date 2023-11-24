@@ -35,25 +35,30 @@ get_ticket() {
 }
 
 # CAS 1.0
+echo "Testing CAS 1.0..."
 ticket=$(get_ticket)
 curl --fail --silent "${keycloak_cas_url}/validate?service=http://localhost&ticket=$ticket"
 echo
 
 # CAS 2.0
+echo "Testing CAS 2.0 - XML..."
 ticket=$(get_ticket)
 curl --fail --silent "${keycloak_cas_url}/serviceValidate?service=http://localhost&format=XML&ticket=$ticket"
 echo
 
+echo "Testing CAS 2.0 - JSON..."
 ticket=$(get_ticket)
 curl --fail --silent "${keycloak_cas_url}/serviceValidate?service=http://localhost&format=JSON&ticket=$ticket"
 echo
 
 # CAS 3.0
+echo "Testing CAS 3.0..."
 ticket=$(get_ticket save_cookies)
 curl --fail --silent "${keycloak_cas_url}/p3/serviceValidate?service=http://localhost&format=JSON&ticket=$ticket"
 echo
 
 # SAML 1.1
+echo "Testing SAML 1.1..."
 ticket=$(get_ticket SAML)
 timestamp=$(date -u +"%Y-%m-%dT%H:%M:%SZ")
 saml_template=$(dirname "$0")/samlValidateTemplate.xml
@@ -63,7 +68,8 @@ sed -e "s/CAS_TICKET/$ticket/g" -e "s/TIMESTAMP/$timestamp/g" "$saml_template" \
       --data-binary @- "${keycloak_cas_url}/samlValidate?TARGET=http://localhost"
 echo
 
-# CAS, gateway option
+# CAS - gateway option
+echo "Testing CAS - gateway option, stage 1..."
 get_ticket save_cookies
 login_response=$(curl --fail --silent -D - -b /tmp/cookies "${keycloak_cas_url}/login?service=http://localhost&gateway=true")
 if echo "${login_response}" | grep '^Location: http://localhost\?ticket='; then
@@ -72,6 +78,7 @@ if echo "${login_response}" | grep '^Location: http://localhost\?ticket='; then
     exit 1
 fi
 
+echo "Testing CAS - gateway option, stage 2..."
 login_response=$(curl --fail --silent -D - "${keycloak_cas_url}/login?service=http://localhost&gateway=true")
 if echo "${login_response}" | grep '^Location: http://localhost$'; then
     echo "Gateway option did not redirect back to service without ticket"
