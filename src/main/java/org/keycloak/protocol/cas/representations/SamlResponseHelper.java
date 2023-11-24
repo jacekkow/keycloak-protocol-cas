@@ -6,7 +6,6 @@ import org.keycloak.dom.saml.v1.protocol.SAML11StatusCodeType;
 import org.keycloak.dom.saml.v1.protocol.SAML11StatusType;
 import org.keycloak.protocol.cas.utils.CASValidationException;
 import org.keycloak.saml.common.exceptions.ProcessingException;
-import org.keycloak.saml.processing.core.saml.v1.SAML11Constants;
 import org.keycloak.saml.processing.core.saml.v1.writers.SAML11ResponseWriter;
 import org.keycloak.services.validation.Validation;
 import org.w3c.dom.Document;

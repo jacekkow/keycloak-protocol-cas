@@ -1,8 +1,6 @@
 package org.keycloak.protocol.cas.endpoints;
 
-import jakarta.ws.rs.core.Context;
 import jakarta.ws.rs.core.MediaType;
-import jakarta.ws.rs.core.Request;
 import jakarta.ws.rs.core.Response;
 import org.keycloak.events.EventBuilder;
 import org.keycloak.models.KeycloakSession;

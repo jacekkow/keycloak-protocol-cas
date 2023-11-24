@@ -1,11 +1,7 @@
 package org.keycloak.protocol.cas.endpoints;
 
-import jakarta.ws.rs.core.Context;
-import jakarta.ws.rs.core.HttpHeaders;
 import jakarta.ws.rs.core.Response;
 import org.jboss.logging.Logger;
-import org.jboss.resteasy.spi.HttpRequest;
-import org.keycloak.common.ClientConnection;
 import org.keycloak.events.Details;
 import org.keycloak.events.Errors;
 import org.keycloak.events.EventBuilder;

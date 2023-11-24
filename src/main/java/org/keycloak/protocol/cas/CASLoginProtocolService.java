@@ -1,11 +1,8 @@
 package org.keycloak.protocol.cas;
 
 import jakarta.ws.rs.Path;
-import jakarta.ws.rs.core.Context;
-import jakarta.ws.rs.core.HttpHeaders;
 import jakarta.ws.rs.core.Response;
 import jakarta.ws.rs.core.UriBuilder;
-import org.jboss.resteasy.spi.HttpRequest;
 import org.jboss.resteasy.spi.ResteasyProviderFactory;
 import org.keycloak.events.EventBuilder;
 import org.keycloak.models.KeycloakSession;
