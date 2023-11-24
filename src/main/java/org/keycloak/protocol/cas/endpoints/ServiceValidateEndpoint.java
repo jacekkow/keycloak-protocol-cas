@@ -5,6 +5,7 @@ import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Request;
 import jakarta.ws.rs.core.Response;
 import org.keycloak.events.EventBuilder;
+import org.keycloak.models.KeycloakSession;
 import org.keycloak.models.RealmModel;
 import org.keycloak.models.UserSessionModel;
 import org.keycloak.protocol.cas.representations.CASServiceResponse;
@@ -15,11 +16,8 @@ import org.keycloak.protocol.cas.utils.ServiceResponseHelper;
 import java.util.Map;
 
 public class ServiceValidateEndpoint extends ValidateEndpoint {
-    @Context
-    private Request restRequest;
-
-    public ServiceValidateEndpoint(RealmModel realm, EventBuilder event) {
-        super(realm, event);
+    public ServiceValidateEndpoint(KeycloakSession session, RealmModel realm, EventBuilder event) {
+        super(session, realm, event);
     }
 
     @Override

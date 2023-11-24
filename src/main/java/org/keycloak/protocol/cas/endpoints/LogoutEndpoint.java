@@ -2,13 +2,9 @@ package org.keycloak.protocol.cas.endpoints;
 
 import jakarta.ws.rs.GET;
 import jakarta.ws.rs.QueryParam;
-import jakarta.ws.rs.core.Context;
-import jakarta.ws.rs.core.HttpHeaders;
 import jakarta.ws.rs.core.Response;
 import org.jboss.logging.Logger;
 import org.jboss.resteasy.annotations.cache.NoCache;
-import org.jboss.resteasy.spi.HttpRequest;
-import org.keycloak.common.ClientConnection;
 import org.keycloak.models.ClientModel;
 import org.keycloak.models.KeycloakSession;
 import org.keycloak.models.RealmModel;
@@ -24,23 +20,14 @@ import java.net.URI;
 public class LogoutEndpoint {
     private static final Logger logger = Logger.getLogger(LogoutEndpoint.class);
 
-    @Context
     private KeycloakSession session;
-
-    @Context
-    private ClientConnection clientConnection;
-
-    @Context
-    private HttpRequest request;
-
-    @Context
-    private HttpHeaders headers;
 
     private RealmModel realm;
     private ClientModel client;
     private String redirectUri;
 
-    public LogoutEndpoint(RealmModel realm) {
+    public LogoutEndpoint(KeycloakSession session, RealmModel realm) {
+        this.session = session;
         this.realm = realm;
     }
 
@@ -59,7 +46,7 @@ public class LogoutEndpoint {
             }
 
             logger.debug("Initiating CAS browser logout");
-            Response response =  AuthenticationManager.browserLogout(session, realm, authResult.getSession(), session.getContext().getUri(), clientConnection, headers);
+            Response response = AuthenticationManager.browserLogout(session, realm, authResult.getSession(), session.getContext().getUri(), session.getContext().getConnection(), session.getContext().getRequestHeaders());
             logger.debug("finishing CAS browser logout");
             return response;
         }

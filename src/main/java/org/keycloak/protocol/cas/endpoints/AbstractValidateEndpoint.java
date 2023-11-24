@@ -27,26 +27,20 @@ import java.util.stream.Collectors;
 
 public abstract class AbstractValidateEndpoint {
     protected final Logger logger = Logger.getLogger(getClass());
-    @Context
     protected KeycloakSession session;
-    @Context
-    protected ClientConnection clientConnection;
-    @Context
-    protected HttpRequest request;
-    @Context
-    protected HttpHeaders headers;
     protected RealmModel realm;
     protected EventBuilder event;
     protected ClientModel client;
     protected AuthenticatedClientSessionModel clientSession;
 
-    public AbstractValidateEndpoint(RealmModel realm, EventBuilder event) {
+    public AbstractValidateEndpoint(KeycloakSession session, RealmModel realm, EventBuilder event) {
+        this.session = session;
         this.realm = realm;
         this.event = event;
     }
 
     protected void checkSsl() {
-        if (!session.getContext().getUri().getBaseUri().getScheme().equals("https") && realm.getSslRequired().isRequired(clientConnection)) {
+        if (!session.getContext().getUri().getBaseUri().getScheme().equals("https") && realm.getSslRequired().isRequired(session.getContext().getConnection())) {
             throw new CASValidationException(CASErrorCode.INVALID_REQUEST, "HTTPS required", Response.Status.FORBIDDEN);
         }
     }
