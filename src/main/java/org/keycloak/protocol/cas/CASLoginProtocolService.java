@@ -3,7 +3,6 @@ package org.keycloak.protocol.cas;
 import jakarta.ws.rs.Path;
 import jakarta.ws.rs.core.Response;
 import jakarta.ws.rs.core.UriBuilder;
-import org.jboss.resteasy.spi.ResteasyProviderFactory;
 import org.keycloak.events.EventBuilder;
 import org.keycloak.models.KeycloakSession;
 import org.keycloak.models.RealmModel;
@@ -27,37 +26,27 @@ public class CASLoginProtocolService {
 
     @Path("login")
     public Object login() {
-        AuthorizationEndpoint endpoint = new AuthorizationEndpoint(session, event);
-        ResteasyProviderFactory.getInstance().injectProperties(endpoint);
-        return endpoint;
+        return new AuthorizationEndpoint(session, event);
     }
 
     @Path("logout")
     public Object logout() {
-        LogoutEndpoint endpoint = new LogoutEndpoint(session, realm);
-        ResteasyProviderFactory.getInstance().injectProperties(endpoint);
-        return endpoint;
+        return new LogoutEndpoint(session, realm);
     }
 
     @Path("validate")
     public Object validate() {
-        ValidateEndpoint endpoint = new ValidateEndpoint(session, realm, event);
-        ResteasyProviderFactory.getInstance().injectProperties(endpoint);
-        return endpoint;
+        return new ValidateEndpoint(session, realm, event);
     }
 
     @Path("samlValidate")
     public Object validateSaml11() {
-        SamlValidateEndpoint endpoint = new SamlValidateEndpoint(session, realm, event);
-        ResteasyProviderFactory.getInstance().injectProperties(endpoint);
-        return endpoint;
+        return new SamlValidateEndpoint(session, realm, event);
     }
 
     @Path("serviceValidate")
     public Object serviceValidate() {
-        ServiceValidateEndpoint endpoint = new ServiceValidateEndpoint(session, realm, event);
-        ResteasyProviderFactory.getInstance().injectProperties(endpoint);
-        return endpoint;
+        return new ServiceValidateEndpoint(session, realm, event);
     }
 
     @Path("proxyValidate")
