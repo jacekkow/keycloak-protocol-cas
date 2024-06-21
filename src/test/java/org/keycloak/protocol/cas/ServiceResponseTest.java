@@ -52,10 +52,10 @@ public class ServiceResponseTest {
         assertEquals("username", xpath.evaluate("/cas:serviceResponse/cas:authenticationSuccess/cas:user", doc));
         int idx = 0;
         for (Node node : xpath.selectNodes("/cas:serviceResponse/cas:authenticationSuccess/cas:attributes/cas:list", doc)) {
-            assertEquals(((List)attributes.get("list")).get(idx), node.getTextContent());
+            assertEquals(((List<?>)attributes.get("list")).get(idx), node.getTextContent());
             idx++;
         }
-        assertEquals(((List)attributes.get("list")).size(), idx);
+        assertEquals(((List<?>)attributes.get("list")).size(), idx);
         assertEquals(attributes.get("int").toString(), xpath.evaluate("/cas:serviceResponse/cas:authenticationSuccess/cas:attributes/cas:int", doc));
         assertEquals(attributes.get("string").toString(), xpath.evaluate("/cas:serviceResponse/cas:authenticationSuccess/cas:attributes/cas:string", doc));
 

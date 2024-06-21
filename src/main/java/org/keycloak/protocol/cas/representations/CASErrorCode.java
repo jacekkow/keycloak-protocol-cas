@@ -9,6 +9,8 @@ public enum CASErrorCode {
     UNAUTHORIZED_SERVICE_PROXY,
     /** The proxy callback specified is invalid. The credentials specified for proxy authentication do not meet the security requirements */
     INVALID_PROXY_CALLBACK,
+    /** The proxy callback specified return with error*/
+    PROXY_CALLBACK_ERROR,
     /** the ticket provided was not valid, or the ticket did not come from an initial login and renew was set on validation. */
     INVALID_TICKET,
     /** the ticket provided was valid, but the service specified did not match the service associated with the ticket. */

@@ -1,8 +1,8 @@
 package org.keycloak.protocol.cas;
 
 import jakarta.ws.rs.Path;
-import jakarta.ws.rs.core.Response;
 import jakarta.ws.rs.core.UriBuilder;
+
 import org.keycloak.events.EventBuilder;
 import org.keycloak.models.KeycloakSession;
 import org.keycloak.models.RealmModel;
@@ -51,13 +51,12 @@ public class CASLoginProtocolService {
 
     @Path("proxyValidate")
     public Object proxyValidate() {
-        //TODO implement
-        return serviceValidate();
+        return new ProxyValidateEndpoint(session, realm, event);
     }
 
     @Path("proxy")
     public Object proxy() {
-        return Response.serverError().entity("Not implemented").build();
+        return new ProxyEndpoint(session, realm, event);
     }
 
     @Path("p3/serviceValidate")
