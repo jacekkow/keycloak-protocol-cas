@@ -103,20 +103,12 @@ public abstract class AbstractValidateEndpoint {
             throw new CASValidationException(CASErrorCode.INVALID_TICKET_SPEC, "Invalid format of the code", Response.Status.BAD_REQUEST);
         }
 
+        String codeUUID = parsed[0];
         String userSessionId = parsed[1];
         String clientUUID = parsed[2];
 
         event.detail(Details.CODE_ID, userSessionId);
         event.session(userSessionId);
-
-        // Parse UUID
-        String codeUUID;
-        try {
-            codeUUID = parsed[0];
-        } catch (IllegalArgumentException re) {
-            event.error(Errors.INVALID_CODE);
-            throw new CASValidationException(CASErrorCode.INVALID_TICKET_SPEC, "Invalid format of the UUID in the code", Response.Status.BAD_REQUEST);
-        }
 
         // Retrieve UserSession
         UserSessionModel userSession = new UserSessionCrossDCManager(session).getUserSessionWithClient(realm, userSessionId, clientUUID);
