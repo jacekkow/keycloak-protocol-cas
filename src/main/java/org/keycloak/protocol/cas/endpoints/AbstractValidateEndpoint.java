@@ -117,12 +117,13 @@ public abstract class AbstractValidateEndpoint {
             userSession = session.sessions().getUserSession(realm, userSessionId);
             if (userSession == null) {
                 event.error(Errors.USER_SESSION_NOT_FOUND);
-                throw new CASValidationException(CASErrorCode.INVALID_TICKET, "User session not found", Response.Status.BAD_REQUEST);
+                throw new CASValidationException(CASErrorCode.INVALID_TICKET, "Code not valid", Response.Status.BAD_REQUEST);
             }
         }
 
         clientSession = userSession.getAuthenticatedClientSessionByClient(clientUUID);
         if (clientSession == null) {
+            event.error(Errors.INVALID_CODE);
             throw new CASValidationException(CASErrorCode.INVALID_TICKET, "Code not valid", Response.Status.BAD_REQUEST);
         }
 
@@ -131,14 +132,16 @@ public abstract class AbstractValidateEndpoint {
 
         // Either code not available
         if (codeDataSerialized == null) {
-            throw new CASValidationException(CASErrorCode.INVALID_TICKET, "Code already used", Response.Status.BAD_REQUEST);
+            event.error(Errors.INVALID_CODE);
+            throw new CASValidationException(CASErrorCode.INVALID_TICKET, "Code not valid", Response.Status.BAD_REQUEST);
         }
 
         OAuth2Code codeData = OAuth2Code.deserializeCode(codeDataSerialized);
 
         String persistedUserSessionId = codeData.getUserSessionId();
         if (!userSessionId.equals(persistedUserSessionId)) {
-            throw new CASValidationException(CASErrorCode.INVALID_TICKET, "Code "+codeUUID+"' is bound to a different session", Response.Status.BAD_REQUEST);
+            event.error(Errors.INVALID_CODE);
+            throw new CASValidationException(CASErrorCode.INVALID_TICKET, "Code not valid", Response.Status.BAD_REQUEST);
         }
 
         // Finally doublecheck if code is not expired
@@ -173,7 +176,7 @@ public abstract class AbstractValidateEndpoint {
         } else {
             if (!client.getClientId().equals(clientSession.getClient().getClientId())) {
                 event.error(Errors.INVALID_CODE);
-                throw new CASValidationException(CASErrorCode.INVALID_SERVICE, "Auth error", Response.Status.BAD_REQUEST);
+                throw new CASValidationException(CASErrorCode.INVALID_SERVICE, "Invalid service", Response.Status.BAD_REQUEST);
             }
         }
 
@@ -205,7 +208,7 @@ public abstract class AbstractValidateEndpoint {
             this.pgtIou = pgtIou;
         } catch (Exception e) {
             event.error(Errors.INVALID_REQUEST);
-            throw new CASValidationException(CASErrorCode.PROXY_CALLBACK_ERROR, "Proxy callback return with error", Response.Status.BAD_REQUEST);
+            throw new CASValidationException(CASErrorCode.PROXY_CALLBACK_ERROR, "Proxy callback returned an error", Response.Status.BAD_REQUEST);
         }
     }
 
