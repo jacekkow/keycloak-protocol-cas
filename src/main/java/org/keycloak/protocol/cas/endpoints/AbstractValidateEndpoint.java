@@ -95,7 +95,7 @@ public abstract class AbstractValidateEndpoint {
             throw new CASValidationException(CASErrorCode.INVALID_TICKET_SPEC, "Malformed service ticket", Response.Status.BAD_REQUEST);
         }
 
-        Boolean isreuse = ticket.startsWith(CASLoginProtocol.PROXY_GRANTING_TICKET_PREFIX);
+        boolean isReusable = ticket.startsWith(CASLoginProtocol.PROXY_GRANTING_TICKET_PREFIX);
 
         String[] parsed = DOT.split(ticket.substring(prefix.length()), 3);
         if (parsed.length != 3) {
@@ -135,7 +135,7 @@ public abstract class AbstractValidateEndpoint {
         }
 
         SingleUseObjectProvider codeStore = session.singleUseObjects();
-        Map<String, String> codeDataSerialized = isreuse? codeStore.get(prefix + codeUUID) : codeStore.remove(prefix + codeUUID);
+        Map<String, String> codeDataSerialized = isReusable ? codeStore.get(prefix + codeUUID) : codeStore.remove(prefix + codeUUID);
 
         // Either code not available
         if (codeDataSerialized == null) {
