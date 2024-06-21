@@ -33,7 +33,7 @@ As a rule of thumb plugin version should **match your Keycloak version**.
 Quarkus is the default distribution method of Keycloak 17.0.0 and newer. For legacy installations using WildFly, please refer to the [old README](https://github.com/jacekkow/keycloak-protocol-cas/blob/16.1.1/README.md).
 
 1. Download the latest release compatible with your Keycloak version from the [releases page](https://github.com/jacekkow/keycloak-protocol-cas/releases).
-2. Put the downloaded JAR file into the `providers/` directory inside Keycloak installation folder.
+2. Put the downloaded JAR file into the `providers/` directory inside Keycloak installation folder. If necessary, adjust the permissions/ownership so that the user Keycloak runs as is able to read this file.
 3. Stop the Keycloak server.
 4. (Re-)build the installation using `kc.sh build` command.
 5. Start the Keycloak: `kc.sh start`
