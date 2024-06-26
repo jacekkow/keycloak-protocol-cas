@@ -17,7 +17,6 @@ The following CAS features are currently implemented:
 
 The following features are **missing**:
 * SAML request/response [CAS 3.0 - optional]
-* Proxy ticket service and proxy ticket validation [CAS 2.0]
 
 The following features are out of scope:
 * Long-Term Tickets - Remember-Me [CAS 3.0 - optional]

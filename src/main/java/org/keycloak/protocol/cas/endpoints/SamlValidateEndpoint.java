@@ -56,7 +56,7 @@ public class SamlValidateEndpoint extends AbstractValidateEndpoint {
             String issuer = Urls.realmIssuer(session.getContext().getUri().getBaseUri(), realm.getName());
             String ticket = getTicket(input);
 
-            checkTicket(ticket, renew);
+            checkTicket(ticket, CASLoginProtocol.SERVICE_TICKET_PREFIX, renew);
             UserModel user = clientSession.getUserSession().getUser();
 
             Map<String, Object> attributes = getUserAttributes();
