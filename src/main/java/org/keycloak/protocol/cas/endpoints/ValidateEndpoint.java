@@ -26,6 +26,7 @@ public class ValidateEndpoint extends AbstractValidateEndpoint {
     public Response build() {
         MultivaluedMap<String, String> params = session.getContext().getUri().getQueryParameters();
         String service = params.getFirst(CASLoginProtocol.SERVICE_PARAM);
+        String pgtUrl = params.getFirst(CASLoginProtocol.PGTURL_PARAM);
         String ticket = params.getFirst(CASLoginProtocol.TICKET_PARAM);
         boolean renew = params.containsKey(CASLoginProtocol.RENEW_PARAM);
 
@@ -36,7 +37,9 @@ public class ValidateEndpoint extends AbstractValidateEndpoint {
             checkRealm();
             checkClient(service);
 
-            checkTicket(ticket, renew);
+            checkTicket(ticket, CASLoginProtocol.SERVICE_TICKET_PREFIX, renew);
+
+            if (pgtUrl != null) createProxyGrant(pgtUrl);
 
             event.success();
             return successResponse();

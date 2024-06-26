@@ -22,7 +22,7 @@ public class ServiceValidateEndpoint extends ValidateEndpoint {
     protected Response successResponse() {
         UserSessionModel userSession = clientSession.getUserSession();
         Map<String, Object> attributes = getUserAttributes();
-        CASServiceResponse serviceResponse = ServiceResponseHelper.createSuccess(userSession.getUser().getUsername(), attributes);
+        CASServiceResponse serviceResponse = ServiceResponseHelper.createSuccess(userSession.getUser().getUsername(), attributes, this.pgtIou, null);
         return prepare(Response.Status.OK, serviceResponse);
     }
 
