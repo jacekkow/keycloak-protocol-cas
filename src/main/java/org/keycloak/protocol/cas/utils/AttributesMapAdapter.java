@@ -39,7 +39,7 @@ public final class AttributesMapAdapter extends XmlAdapter<AttributesMapAdapter.
             this.elements = new ArrayList<>();
             for (Map.Entry<String, Object> entry : attributes.entrySet()) {
                 if (entry.getValue() instanceof Collection) {
-                    for (Object item : ((Collection) entry.getValue())) {
+                    for (Object item : ((Collection<?>) entry.getValue())) {
                         addElement(entry.getKey(), item);
                     }
                 } else {

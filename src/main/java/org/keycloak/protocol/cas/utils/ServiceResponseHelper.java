@@ -7,6 +7,8 @@ import org.keycloak.protocol.cas.representations.CASErrorCode;
 import org.keycloak.protocol.cas.representations.CASServiceResponse;
 import org.keycloak.protocol.cas.representations.CASServiceResponseAuthenticationFailure;
 import org.keycloak.protocol.cas.representations.CASServiceResponseAuthenticationSuccess;
+import org.keycloak.protocol.cas.representations.CASServiceResponseProxySuccess;
+import org.keycloak.protocol.cas.representations.CASServiceResponseProxyFailure;
 
 import java.util.List;
 import java.util.Map;
@@ -39,6 +41,24 @@ public final class ServiceResponseHelper {
         failure.setCode(errorCode == null ? CASErrorCode.INTERNAL_ERROR.name() : errorCode.name());
         failure.setDescription(errorDescription);
         response.setAuthenticationFailure(failure);
+
+        return response;
+    }
+
+    public static CASServiceResponse createProxySuccess(String pt) {
+        CASServiceResponse response = new CASServiceResponse();
+        CASServiceResponseProxySuccess success = new CASServiceResponseProxySuccess();
+        success.setProxyTicket(pt);
+        response.setProxySuccess(success);
+        return response;
+    }
+
+    public static CASServiceResponse createProxyFailure(CASErrorCode errorCode, String errorDescription) {
+        CASServiceResponse response = new CASServiceResponse();
+        CASServiceResponseProxyFailure failure = new CASServiceResponseProxyFailure();
+        failure.setCode(errorCode == null ? CASErrorCode.INTERNAL_ERROR.name() : errorCode.name());
+        failure.setDescription(errorDescription);
+        response.setProxyFailure(failure);
 
         return response;
     }

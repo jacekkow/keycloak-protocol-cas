@@ -5,6 +5,7 @@ import jakarta.ws.rs.core.Response;
 import org.keycloak.protocol.cas.representations.CASErrorCode;
 
 public class CASValidationException extends WebApplicationException {
+    private static final long serialVersionUID = 4929825917145240776L;
     private final CASErrorCode error;
     private final String errorDescription;
     private final Response.Status status;
