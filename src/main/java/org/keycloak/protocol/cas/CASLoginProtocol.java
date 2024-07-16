@@ -11,6 +11,7 @@ import org.keycloak.events.EventBuilder;
 import org.keycloak.events.EventType;
 import org.keycloak.forms.login.LoginFormsProvider;
 import org.keycloak.models.*;
+import org.keycloak.protocol.ClientData;
 import org.keycloak.protocol.LoginProtocol;
 import org.keycloak.protocol.cas.endpoints.AbstractValidateEndpoint;
 import org.keycloak.protocol.cas.utils.LogoutHelper;
@@ -126,6 +127,16 @@ public class CASLoginProtocol implements LoginProtocol {
             }
         }
         return ErrorPage.error(session, authSession, Response.Status.INTERNAL_SERVER_ERROR, error.name());
+    }
+
+    @Override
+    public ClientData getClientData(AuthenticationSessionModel authSession) {
+        return new ClientData(authSession.getRedirectUri(), null, null, null);
+    }
+
+    @Override
+    public Response sendError(ClientModel clientModel, ClientData clientData, Error error) {
+        return null;
     }
 
     @Override

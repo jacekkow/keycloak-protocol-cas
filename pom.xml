@@ -22,7 +22,7 @@
 
     <groupId>org.keycloak</groupId>
     <artifactId>keycloak-protocol-cas</artifactId>
-    <version>24.0.5</version>
+    <version>25.0.0</version>
     <name>Keycloak CAS Protocol</name>
     <description />
 
@@ -32,10 +32,11 @@
         <jboss.logging.version>3.5.3.Final</jboss.logging.version>
         <jboss.logging.tools.version>2.2.1.Final</jboss.logging.tools.version>
         <junit.version>4.13.2</junit.version>
+        <resteasy.version>6.2.7.Final</resteasy.version>
 
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <maven.compiler.release>17</maven.compiler.release>
-        <project.build.outputTimestamp>1717490835</project.build.outputTimestamp>
+        <project.build.outputTimestamp>1718009227</project.build.outputTimestamp>
     </properties>
 
     <dependencies>
@@ -62,6 +63,12 @@
             <groupId>org.apache.httpcomponents</groupId>
             <artifactId>httpclient</artifactId>
             <version>${apache.httpcomponents.version}</version>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.jboss.resteasy</groupId>
+            <artifactId>resteasy-core-spi</artifactId>
+            <version>${resteasy.version}</version>
             <scope>provided</scope>
         </dependency>
         <dependency>
