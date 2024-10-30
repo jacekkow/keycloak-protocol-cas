@@ -1,5 +1,15 @@
 on:
   pull_request:
+  workflow_call:
+    outputs:
+      artifact_id:
+        value: ${{ jobs.build.outputs.artifactId }}
+      keycloak_version:
+        value: ${{ jobs.build.outputs.keycloakVersion }}
+      project_name:
+        value: ${{ jobs.build.outputs.projectName }}
+      project_version:
+        value: ${{ jobs.build.outputs.projectVersion }}
 
 name: Test
 
