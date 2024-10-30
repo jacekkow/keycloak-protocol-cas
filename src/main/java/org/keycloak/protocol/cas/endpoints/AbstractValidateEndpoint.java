@@ -151,7 +151,7 @@ public abstract class AbstractValidateEndpoint {
             throw new CASValidationException(CASErrorCode.INVALID_TICKET, "Code is expired", Response.Status.BAD_REQUEST);
         }
 
-        clientSession.setNote(prefix, ticket);
+        clientSession.setNote(CASLoginProtocol.SESSION_TICKET, ticket);
 
         if (requireReauth && AuthenticationManager.isSSOAuthentication(clientSession)) {
             event.error(Errors.SESSION_EXPIRED);

@@ -44,7 +44,7 @@ public class CASLoginProtocol implements LoginProtocol {
     public static final String PROXY_GRANTING_TICKET_IOU_PREFIX = "PGTIOU-";
     public static final String PROXY_GRANTING_TICKET_PREFIX = "PGT-";
     public static final String PROXY_TICKET_PREFIX = "PT-";
-    public static final String SESSION_SERVICE_TICKET = "service_ticket";
+    public static final String SESSION_TICKET = "service_ticket";
 
     public static final String LOGOUT_REDIRECT_URI = "CAS_LOGOUT_REDIRECT_URI";
 
@@ -142,7 +142,7 @@ public class CASLoginProtocol implements LoginProtocol {
     @Override
     public Response backchannelLogout(UserSessionModel userSession, AuthenticatedClientSessionModel clientSession) {
         String logoutUrl = clientSession.getRedirectUri();
-        String serviceTicket = clientSession.getNote(CASLoginProtocol.SESSION_SERVICE_TICKET);
+        String serviceTicket = clientSession.getNote(CASLoginProtocol.SESSION_TICKET);
         //check if session is fully authenticated (i.e. serviceValidate has been called)
         if (serviceTicket != null && !serviceTicket.isEmpty()) {
             sendSingleLogoutRequest(logoutUrl, serviceTicket);
