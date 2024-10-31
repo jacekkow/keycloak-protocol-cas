@@ -3,13 +3,13 @@ on:
   workflow_call:
     outputs:
       artifact_id:
-        value: ${{ jobs.build.outputs.artifactId }}
+        value: ${{ jobs.build.outputs.artifact_id }}
       keycloak_version:
-        value: ${{ jobs.build.outputs.keycloakVersion }}
+        value: ${{ jobs.build.outputs.keycloak_version }}
       project_name:
-        value: ${{ jobs.build.outputs.projectName }}
+        value: ${{ jobs.build.outputs.project_name }}
       project_version:
-        value: ${{ jobs.build.outputs.projectVersion }}
+        value: ${{ jobs.build.outputs.project_version }}
 
 name: Test
 
