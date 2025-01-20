@@ -120,7 +120,7 @@ public class CASLoginProtocol implements LoginProtocol {
     }
 
     @Override
-    public Response sendError(AuthenticationSessionModel authSession, Error error) {
+    public Response sendError(AuthenticationSessionModel authSession, Error error, String errorMessage) {
         if (authSession.getClientNotes().containsKey(CASLoginProtocol.GATEWAY_PARAM)) {
             if (error == Error.PASSIVE_INTERACTION_REQUIRED || error == Error.PASSIVE_LOGIN_REQUIRED) {
                 return Response.status(302).location(URI.create(authSession.getRedirectUri())).build();

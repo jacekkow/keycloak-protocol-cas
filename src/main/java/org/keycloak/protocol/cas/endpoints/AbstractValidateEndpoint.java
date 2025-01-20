@@ -260,7 +260,7 @@ public abstract class AbstractValidateEndpoint {
     {
         String key = UUID.randomUUID().toString();
         UserSessionModel userSession = clientSession.getUserSession();
-        OAuth2Code codeData = new OAuth2Code(key, Time.currentTime() + userSession.getRealm().getAccessCodeLifespan(), null, null, redirectUriParam, null, null, userSession.getId());
+        OAuth2Code codeData = new OAuth2Code(key, Time.currentTime() + userSession.getRealm().getAccessCodeLifespan(), null, null, redirectUriParam, null, null, null, userSession.getId());
         session.singleUseObjects().put(prefix + key, clientSession.getUserSession().getRealm().getAccessCodeLifespan(), codeData.serializeCode());
         return prefix + key + "." + clientSession.getUserSession().getId() + "." + clientSession.getClient().getId();
     }
