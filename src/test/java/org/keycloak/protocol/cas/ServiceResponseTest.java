@@ -1,7 +1,7 @@
 package org.keycloak.protocol.cas;
 
 import com.jayway.jsonpath.JsonPath;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.keycloak.protocol.cas.representations.CASErrorCode;
 import org.keycloak.protocol.cas.representations.CASServiceResponse;
 import org.keycloak.protocol.cas.utils.ServiceResponseHelper;
@@ -13,7 +13,7 @@ import org.xmlunit.xpath.XPathEngine;
 
 import java.util.*;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.keycloak.protocol.cas.XMLValidator.parseAndValidate;
 import static org.keycloak.protocol.cas.XMLValidator.schemaFromClassPath;
 

@@ -31,11 +31,21 @@
         <apache.httpcomponents.version>4.5.14</apache.httpcomponents.version>
         <jboss.logging.version>3.6.1.Final</jboss.logging.version>
         <jboss.logging.tools.version>3.0.4.Final</jboss.logging.tools.version>
-        <junit.version>4.13.2</junit.version>
+        <maven.failsafe.version>3.5.4</maven.failsafe.version>
+        <junit.version>5.14.1</junit.version>
         <resteasy.version>6.2.12.Final</resteasy.version>
+        <testcontainers.version>2.0.2</testcontainers.version>
+        <testcontainers.junitjupiter.version>1.21.3</testcontainers.junitjupiter.version>
+        <testcontainers.keycloak.version>4.0.0</testcontainers.keycloak.version>
+        <playwright.version>1.57.0</playwright.version>
+        <keycloak.admin.client.version>26.0.7</keycloak.admin.client.version>
+        <restassured.version>5.5.0</restassured.version>
+        <log4j.version>2.25.2</log4j.version>
 
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <maven.compiler.release>17</maven.compiler.release>
+        <maven.compiler.source>17</maven.compiler.source>
+        <maven.compiler.target>17</maven.compiler.target>
         <project.build.outputTimestamp>1764579472</project.build.outputTimestamp>
     </properties>
 
@@ -95,6 +105,14 @@
             <artifactId>keycloak-services</artifactId>
             <version>${keycloak.version}</version>
             <scope>provided</scope>
+            <exclusions>
+                <!-- Has  to be excluded. If this is not here, Logging does not work for Testcontainers.
+                Normally no package should provide an implementation for slf4j. But Keycloak does, starting from version 26. Might be a bug. -->
+                <exclusion>
+                    <groupId>org.jboss.slf4j</groupId>
+                    <artifactId>slf4j-jboss-logmanager</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
         <dependency>
             <groupId>org.keycloak</groupId>
@@ -102,10 +120,9 @@
             <version>${keycloak.version}</version>
             <scope>provided</scope>
         </dependency>
-
         <dependency>
-            <groupId>junit</groupId>
-            <artifactId>junit</artifactId>
+            <groupId>org.junit.jupiter</groupId>
+            <artifactId>junit-jupiter-api</artifactId>
             <version>${junit.version}</version>
             <scope>test</scope>
         </dependency>
@@ -133,6 +150,55 @@
             <version>5.20.0</version>
             <scope>test</scope>
         </dependency>
+        <dependency>
+            <groupId>org.testcontainers</groupId>
+            <artifactId>testcontainers</artifactId>
+            <version>${testcontainers.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.testcontainers</groupId>
+            <artifactId>junit-jupiter</artifactId>
+            <version>${testcontainers.junitjupiter.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.github.dasniko</groupId>
+            <artifactId>testcontainers-keycloak</artifactId>
+            <version>${testcontainers.keycloak.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.microsoft.playwright</groupId>
+            <artifactId>playwright</artifactId>
+            <version>${playwright.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.keycloak</groupId>
+            <artifactId>keycloak-admin-client</artifactId>
+            <version>${keycloak.admin.client.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>io.rest-assured</groupId>
+            <artifactId>rest-assured</artifactId>
+            <version>${restassured.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <!-- LOGGING -->
+        <dependency>
+            <groupId>org.apache.logging.log4j</groupId>
+            <artifactId>log4j-core</artifactId>
+            <version>${log4j.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.logging.log4j</groupId>
+            <artifactId>log4j-slf4j2-impl</artifactId>
+            <version>${log4j.version}</version>
+            <scope>test</scope>
+        </dependency>
     </dependencies>
     <build>
         <plugins>
@@ -147,6 +213,33 @@
                         -AgeneratedTranslationFilesPath=${project.build.directory}/generated-translation-files
                     </compilerArgument>
                 </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-failsafe-plugin</artifactId>
+                <version>${maven.failsafe.version}</version>
+                <configuration>
+                    <systemPropertyVariables>
+                        <org.jboss.logging.provider>log4j2</org.jboss.logging.provider>
+                        <keycloak.version>${keycloak.version}</keycloak.version>
+                    </systemPropertyVariables>
+                    <statelessTestsetReporter
+                        implementation="org.apache.maven.plugin.surefire.extensions.junit5.JUnit5Xml30StatelessReporter">
+                        <disable>false</disable>
+                        <version>3.0.2</version>
+                        <usePhrasedFileName>false</usePhrasedFileName>
+                        <usePhrasedTestSuiteClassName>true</usePhrasedTestSuiteClassName>
+                        <usePhrasedTestCaseClassName>true</usePhrasedTestCaseClassName>
+                        <usePhrasedTestCaseMethodName>true</usePhrasedTestCaseMethodName>
+                    </statelessTestsetReporter>
+                </configuration>
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>verify</goal>
+                        </goals>
+                    </execution>
+                </executions>
             </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
