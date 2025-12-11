@@ -113,3 +113,32 @@ jobs:
         name: Run tests
         run: |
           integrationTest/suite.sh
+
+  integration-tests:
+    name: Integration tests
+    runs-on: ubuntu-latest
+    steps:
+      - id: checkout
+        name: Checkout code
+        uses: actions/checkout@v4
+
+      - id: java
+        name: Install Java and Maven
+        uses: actions/setup-java@v4
+        with:
+          distribution: zulu
+          java-version: 17
+
+      - name: Run integration tests
+        run: |
+          mvn -B install failsafe:integration-test
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        if: failure()
+        with:
+          name: integration-test-videos
+          path: |
+            target/*.webm
+            target/test.log
+          if-no-files-found: ignore

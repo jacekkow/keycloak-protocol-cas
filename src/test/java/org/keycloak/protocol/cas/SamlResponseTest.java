@@ -13,6 +13,7 @@ import java.util.Collections;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+
 public class SamlResponseTest {
     @Test
     public void successResponseIsWrappedInSOAP() {

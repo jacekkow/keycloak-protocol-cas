@@ -3,6 +3,7 @@ package org.keycloak.protocol.cas;
 import org.apache.http.HttpEntity;
 import org.apache.http.NameValuePair;
 import org.apache.http.client.utils.URLEncodedUtils;
+
 import org.junit.jupiter.api.Test;
 import org.keycloak.protocol.cas.utils.LogoutHelper;
 import org.keycloak.saml.common.constants.JBossSAMLURIConstants;
