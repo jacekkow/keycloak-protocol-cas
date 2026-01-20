@@ -1,10 +1,10 @@
 package org.keycloak.protocol.cas;
 
 import jakarta.ws.rs.core.*;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.keycloak.protocol.cas.utils.ContentTypeHelper;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.Mockito.*;
 
 public class ContentTypeHelperTest {
