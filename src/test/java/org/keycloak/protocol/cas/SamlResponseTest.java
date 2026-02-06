@@ -1,7 +1,7 @@
 package org.keycloak.protocol.cas;
 
 import jakarta.ws.rs.core.Response;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.keycloak.dom.saml.v1.protocol.SAML11ResponseType;
 import org.keycloak.protocol.cas.representations.CASErrorCode;
 import org.keycloak.protocol.cas.representations.SamlResponseHelper;
@@ -10,8 +10,8 @@ import org.w3c.dom.Document;
 
 import java.util.Collections;
 
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class SamlResponseTest {
     @Test

@@ -3,7 +3,7 @@ package org.keycloak.protocol.cas;
 import org.apache.http.HttpEntity;
 import org.apache.http.NameValuePair;
 import org.apache.http.client.utils.URLEncodedUtils;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.keycloak.protocol.cas.utils.LogoutHelper;
 import org.keycloak.saml.common.constants.JBossSAMLURIConstants;
 import org.keycloak.saml.common.util.DocumentUtil;
@@ -13,8 +13,9 @@ import org.w3c.dom.Node;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+
 
 public class LogoutHelperTest {
     @Test
