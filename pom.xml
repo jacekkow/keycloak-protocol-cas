@@ -31,11 +31,14 @@
         <apache.httpcomponents.version>4.5.14</apache.httpcomponents.version>
         <jboss.logging.version>3.6.1.Final</jboss.logging.version>
         <jboss.logging.tools.version>3.0.4.Final</jboss.logging.tools.version>
-        <junit.version>4.13.2</junit.version>
+        <junit.version>6.0.2</junit.version>
         <resteasy.version>6.2.12.Final</resteasy.version>
 
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <maven.compiler.release>17</maven.compiler.release>
+        <java.version>17</java.version>
+        <maven.compiler.release>${java.version}</maven.compiler.release>
+        <maven.compiler.source>${java.version}</maven.compiler.source>
+        <maven.compiler.target>${java.version}</maven.compiler.target>
         <project.build.outputTimestamp>1769244879</project.build.outputTimestamp>
     </properties>
 
@@ -104,8 +107,8 @@
         </dependency>
 
         <dependency>
-            <groupId>junit</groupId>
-            <artifactId>junit</artifactId>
+            <groupId>org.junit.jupiter</groupId>
+            <artifactId>junit-jupiter-api</artifactId>
             <version>${junit.version}</version>
             <scope>test</scope>
         </dependency>
