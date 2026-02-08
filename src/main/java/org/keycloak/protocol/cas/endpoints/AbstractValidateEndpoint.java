@@ -18,7 +18,9 @@ import org.keycloak.services.managers.AuthenticationManager;
 import org.keycloak.services.managers.UserSessionCrossDCManager;
 import org.keycloak.services.util.DefaultClientSessionContext;
 
+import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
+import java.util.HexFormat;
 import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
@@ -32,6 +34,7 @@ import org.apache.http.impl.client.HttpClientBuilder;
 public abstract class AbstractValidateEndpoint {
     protected final Logger logger = Logger.getLogger(getClass());
     private static final Pattern DOT = Pattern.compile("\\.");
+    private static final Pattern SEPERATION_PATTERN = Pattern.compile("--");
     protected KeycloakSession session;
     protected RealmModel realm;
     protected EventBuilder event;
@@ -95,16 +98,23 @@ public abstract class AbstractValidateEndpoint {
             throw new CASValidationException(CASErrorCode.INVALID_TICKET_SPEC, "Malformed service ticket", Response.Status.BAD_REQUEST);
         }
 
-        boolean isReusable = ticket.startsWith(CASLoginProtocol.PROXY_GRANTING_TICKET_PREFIX);
+        String ticketValue = ticket.substring(prefix.length()); 
 
-        String[] parsed = DOT.split(ticket.substring(prefix.length()), 3);
+        boolean isReusable = ticket.startsWith(CASLoginProtocol.PROXY_GRANTING_TICKET_PREFIX);
+        // Check if the ticket is hex encoded or using old method
+        String[] parsed;
+        if (ticketValue.contains(".")) {
+            parsed = DOT.split(ticketValue, 3);
+        } else {
+            parsed = SEPERATION_PATTERN.split(ticketValue, 3);
+        }
         if (parsed.length != 3) {
             event.error(Errors.INVALID_CODE);
             throw new CASValidationException(CASErrorCode.INVALID_TICKET_SPEC, "Invalid format of the code", Response.Status.BAD_REQUEST);
         }
 
         String codeUUID = parsed[0];
-        String userSessionId = parsed[1];
+        String userSessionId = ticketValue.contains(".") ? parsed[1] : hexDecode(parsed[1]);
         String clientUUID = parsed[2];
 
         event.detail(Details.CODE_ID, userSessionId);
@@ -262,6 +272,15 @@ public abstract class AbstractValidateEndpoint {
         UserSessionModel userSession = clientSession.getUserSession();
         OAuth2Code codeData = new OAuth2Code(key, Time.currentTime() + userSession.getRealm().getAccessCodeLifespan(), null, null, redirectUriParam, null, null, null, userSession.getId());
         session.singleUseObjects().put(prefix + key, clientSession.getUserSession().getRealm().getAccessCodeLifespan(), codeData.serializeCode());
-        return prefix + key + "." + clientSession.getUserSession().getId() + "." + clientSession.getClient().getId();
+        return prefix + key + "--" + hexEncode(clientSession.getUserSession().getId()) + "--" + clientSession.getClient().getId();
+    }
+
+    private String hexEncode(String value) {
+        return HexFormat.of().formatHex(value.getBytes(StandardCharsets.US_ASCII));
+    }
+
+    private String hexDecode(String hex) {
+        byte[] bytes = HexFormat.of().parseHex(hex);
+        return new String(bytes, StandardCharsets.US_ASCII);
     }
 }
