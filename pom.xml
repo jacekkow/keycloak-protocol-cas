@@ -22,7 +22,7 @@
 
     <groupId>org.keycloak</groupId>
     <artifactId>keycloak-protocol-cas</artifactId>
-    <version>26.5.2</version>
+    <version>26.5.3</version>
     <name>Keycloak CAS Protocol</name>
     <description />
 
@@ -31,7 +31,7 @@
         <apache.httpcomponents.version>4.5.14</apache.httpcomponents.version>
         <jboss.logging.version>3.6.1.Final</jboss.logging.version>
         <jboss.logging.tools.version>3.0.4.Final</jboss.logging.tools.version>
-        <junit.version>6.0.2</junit.version>
+        <junit.version>5.13.4</junit.version>
         <resteasy.version>6.2.12.Final</resteasy.version>
 
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -39,7 +39,7 @@
         <maven.compiler.release>${java.version}</maven.compiler.release>
         <maven.compiler.source>${java.version}</maven.compiler.source>
         <maven.compiler.target>${java.version}</maven.compiler.target>
-        <project.build.outputTimestamp>1769244879</project.build.outputTimestamp>
+        <project.build.outputTimestamp>1770716421</project.build.outputTimestamp>
     </properties>
 
     <dependencies>
