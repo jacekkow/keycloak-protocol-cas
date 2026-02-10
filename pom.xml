@@ -22,7 +22,7 @@
 
     <groupId>org.keycloak</groupId>
     <artifactId>keycloak-protocol-cas</artifactId>
-    <version>26.4.7</version>
+    <version>26.5.1</version>
     <name>Keycloak CAS Protocol</name>
     <description />
 
@@ -46,7 +46,7 @@
         <maven.compiler.release>17</maven.compiler.release>
         <maven.compiler.source>17</maven.compiler.source>
         <maven.compiler.target>17</maven.compiler.target>
-        <project.build.outputTimestamp>1764579472</project.build.outputTimestamp>
+        <project.build.outputTimestamp>1768467551</project.build.outputTimestamp>
     </properties>
 
     <dependencies>
@@ -147,7 +147,7 @@
         <dependency>
             <groupId>org.mockito</groupId>
             <artifactId>mockito-core</artifactId>
-            <version>5.20.0</version>
+            <version>5.21.0</version>
             <scope>test</scope>
         </dependency>
         <dependency>
