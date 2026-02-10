@@ -38,7 +38,7 @@ public class CasLoginIT {
   private static final String KEYCLOAK_VERSION = System.getProperty("keycloak.version", "latest");
   private static final String CAS_CLIENT_1 = "cas_client_1";
   private static final String SERVICE_URL_1 = "http://localhost:4200/callback";
-  private static final String TEST_USERNAME = "tanja@test.de";
+  private static final String TEST_USERNAME = "tanja@example.test";
   private static final String TEST_USER_PASSWORD = "123";
   private static final String TEST_USER_FIRST_NAME = "Tanja";
   private static final String TEST_USER_LAST_NAME = "Test";
