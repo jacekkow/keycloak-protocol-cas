@@ -98,7 +98,7 @@ public abstract class AbstractValidateEndpoint {
             throw new CASValidationException(CASErrorCode.INVALID_TICKET_SPEC, "Malformed service ticket", Response.Status.BAD_REQUEST);
         }
 
-        String ticketValue = ticket.substring(prefix.length()); 
+        String ticketValue = ticket.substring(prefix.length());
 
         boolean isReusable = ticket.startsWith(CASLoginProtocol.PROXY_GRANTING_TICKET_PREFIX);
         // Check if the ticket is hex encoded or using old method
