@@ -80,8 +80,3 @@
   [2] https://issues.jboss.org/browse/KEYCLOAK-1047 (Support CAS 2.0 SSO protocol)
   [3] https://apereo.github.io/cas/4.2.x/protocol/CAS-Protocol-Specification.html
   [4] https://keycloak.gitbooks.io/server-developer-guide/content/topics/providers.html
-
-
-  PR body:
-  As discussed in #185, adds a note warning administrators about the security
-  implications of using wildcard redirect URIs for CAS clients.
