@@ -12,7 +12,7 @@ import org.keycloak.models.ClientModel;
 import org.keycloak.models.KeycloakSession;
 import org.keycloak.protocol.AuthorizationEndpointBase;
 import org.keycloak.protocol.cas.CASLoginProtocol;
-import org.keycloak.protocol.oidc.utils.RedirectUtils;
+import org.keycloak.protocol.cas.utils.RedirectUtils;
 import org.keycloak.services.ErrorPageException;
 import org.keycloak.services.messages.Messages;
 import org.keycloak.services.util.CacheControlUtil;
