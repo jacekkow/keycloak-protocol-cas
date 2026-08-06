@@ -27,6 +27,12 @@ public class RedirectUtilsTest {
         return session;
     }
 
+    private ClientModel createMockClient(String... redirectUris) {
+        ClientModel client = mock(ClientModel.class);
+        when(client.getRedirectUris()).thenReturn(Set.of(redirectUris));
+        return client;
+    }
+
     @Test
     public void testVerifyRedirectUriNull() {
         KeycloakSession session = createMockSession();
@@ -37,8 +43,7 @@ public class RedirectUtilsTest {
     @Test
     public void testVerifyRedirectUriWithoutForbiddenParams() {
         KeycloakSession session = createMockSession();
-        ClientModel client = mock(ClientModel.class);
-        when(client.getRedirectUris()).thenReturn(Set.of("https://localhost:5003/*"));
+        ClientModel client = createMockClient("https://localhost:5003/*");
 
         String serviceUrl = "https://localhost:5003/signin-cas";
         String verified = RedirectUtils.verifyRedirectUri(session, serviceUrl, client);
@@ -49,8 +54,7 @@ public class RedirectUtilsTest {
     @Test
     public void testVerifyRedirectUriWithState() {
         KeycloakSession session = createMockSession();
-        ClientModel client = mock(ClientModel.class);
-        when(client.getRedirectUris()).thenReturn(Set.of("https://localhost:5003/*"));
+        ClientModel client = createMockClient("https://localhost:5003/*");
 
         String serviceUrl = "https://localhost:5003/signin-cas?state=CfDJ81234567890";
         String verified = RedirectUtils.verifyRedirectUri(session, serviceUrl, client);
@@ -61,8 +65,7 @@ public class RedirectUtilsTest {
     @Test
     public void testVerifyRedirectUriWithEncodedChars() {
         KeycloakSession session = createMockSession();
-        ClientModel client = mock(ClientModel.class);
-        when(client.getRedirectUris()).thenReturn(Set.of("https://localhost:5003/*"));
+        ClientModel client = createMockClient("https://localhost:5003/*");
 
         String serviceUrl = "https://localhost:5003/signin-cas?state=CfDJ8%20123";
         String verified = RedirectUtils.verifyRedirectUri(session, serviceUrl, client);
@@ -73,22 +76,31 @@ public class RedirectUtilsTest {
     @Test
     public void testVerifyRedirectUriWithForbiddenOidcParams() {
         KeycloakSession session = createMockSession();
-        ClientModel client = mock(ClientModel.class);
-        when(client.getRedirectUris()).thenReturn(Set.of("https://localhost:5003/*"));
+        ClientModel client = createMockClient("https://localhost:5003/*");
 
         String[] oidcParams = new String[]{"code", "id_token", "access_token", "session_state", "error"};
         for (String param : oidcParams) {
             String serviceUrl = "https://localhost:5003/signin-cas?" + param + "=testValue";
             String verified = RedirectUtils.verifyRedirectUri(session, serviceUrl, client);
-            assertEquals(serviceUrl, verified, "Failed for parameter: " + param);
+            assertNull(verified, "Should be rejected for parameter: " + param);
         }
     }
 
     @Test
-    public void testVerifyRedirectUriWithMultipleParams() {
+    public void testVerifyRedirectUriWithStateAndForbiddenOidcParam() {
         KeycloakSession session = createMockSession();
-        ClientModel client = mock(ClientModel.class);
-        when(client.getRedirectUris()).thenReturn(Set.of("https://localhost:5003/*"));
+        ClientModel client = createMockClient("https://localhost:5003/*");
+
+        String serviceUrl = "https://localhost:5003/signin-cas?state=CfDJ8&code=testValue";
+        String verified = RedirectUtils.verifyRedirectUri(session, serviceUrl, client);
+
+        assertNull(verified);
+    }
+
+    @Test
+    public void testVerifyRedirectUriWithStateAndCustomParam() {
+        KeycloakSession session = createMockSession();
+        ClientModel client = createMockClient("https://localhost:5003/*");
 
         String serviceUrl = "https://localhost:5003/signin-cas?state=CfDJ8&custom_param=value123";
         String verified = RedirectUtils.verifyRedirectUri(session, serviceUrl, client);
@@ -99,8 +111,7 @@ public class RedirectUtilsTest {
     @Test
     public void testVerifyRedirectUriWithFragment() {
         KeycloakSession session = createMockSession();
-        ClientModel client = mock(ClientModel.class);
-        when(client.getRedirectUris()).thenReturn(Set.of("https://localhost:5003/*"));
+        ClientModel client = createMockClient("https://localhost:5003/*");
 
         String serviceUrl = "https://localhost:5003/signin-cas?state=CfDJ8#section1";
         String verified = RedirectUtils.verifyRedirectUri(session, serviceUrl, client);
@@ -111,8 +122,7 @@ public class RedirectUtilsTest {
     @Test
     public void testVerifyRedirectUriInvalidDomain() {
         KeycloakSession session = createMockSession();
-        ClientModel client = mock(ClientModel.class);
-        when(client.getRedirectUris()).thenReturn(Set.of("https://localhost:5003/*"));
+        ClientModel client = createMockClient("https://localhost:5003/*");
 
         String serviceUrl = "https://evil.com/signin-cas?state=CfDJ8";
         String verified = RedirectUtils.verifyRedirectUri(session, serviceUrl, client);
