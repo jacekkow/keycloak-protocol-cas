@@ -22,6 +22,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.HexFormat;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 import java.util.UUID;
 import java.util.regex.Pattern;
@@ -190,6 +191,11 @@ public abstract class AbstractValidateEndpoint {
             }
         }
 
+        if (codeData.getClientUUID() != null && !codeData.getClientUUID().equals(clientUUID)) {
+            event.error(Errors.INVALID_CODE);
+            throw new CASValidationException(CASErrorCode.INVALID_SERVICE, "Invalid client", Response.Status.BAD_REQUEST);
+        }
+
         if (!AuthenticationManager.isSessionValid(realm, userSession)) {
             event.error(Errors.USER_SESSION_NOT_FOUND);
             throw new CASValidationException(CASErrorCode.INVALID_TICKET, "Session not active", Response.Status.BAD_REQUEST);
@@ -270,7 +276,7 @@ public abstract class AbstractValidateEndpoint {
     {
         String key = UUID.randomUUID().toString();
         UserSessionModel userSession = clientSession.getUserSession();
-        OAuth2Code codeData = new OAuth2Code(key, Time.currentTime() + userSession.getRealm().getAccessCodeLifespan(), null, null, null, redirectUriParam, null, null, null, userSession.getId());
+        OAuth2Code codeData = new OAuth2Code(key, clientSession.getClient().getId(), Time.currentTime() + userSession.getRealm().getAccessCodeLifespan(), null, null, null, redirectUriParam, null, null, null, userSession.getId());
         session.singleUseObjects().put(prefix + key, clientSession.getUserSession().getRealm().getAccessCodeLifespan(), codeData.serializeCode());
         return prefix + key + "--" + hexEncode(clientSession.getUserSession().getId()) + "--" + clientSession.getClient().getId();
     }
