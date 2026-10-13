@@ -17,11 +17,11 @@ jobs:
     steps:
       - id: checkout
         name: Checkout code
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
 
       - id: java
         name: Install Java and Maven
-        uses: actions/setup-java@v4
+        uses: actions/setup-java@v6
         with:
           distribution: zulu
           java-version: 17
@@ -97,7 +97,7 @@ jobs:
       - id: create_pull_request_default_token
         name: Create pull request
         if: steps.check_branch.outputs.commit == ''
-        uses: actions/github-script@v6
+        uses: actions/github-script@v9
         with:
           github-token: ${{ env.GH_TOKEN }}
           script: |
