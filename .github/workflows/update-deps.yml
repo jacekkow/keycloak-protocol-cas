@@ -40,7 +40,7 @@ jobs:
             echo "versionUpdated=0"
           fi >> $GITHUB_OUTPUT
           echo -n "keycloakVersion=" >> $GITHUB_OUTPUT
-          mvn -q help:evaluate -Dexpression=keycloak.version -DforceStdout 2> /dev/null | grep -E '^[0-9a-zA-Z.-]+$' >> $GITHUB_OUTPUT
+          mvn -q help:evaluate -Dexpression=keycloak.version -DforceStdout | grep -E '^[0-9a-zA-Z.-]+$' >> $GITHUB_OUTPUT
 
       - id: check_branch
         name: Check if branch exists
