@@ -18,6 +18,7 @@ import org.keycloak.services.managers.AuthenticationManager;
 import org.keycloak.services.managers.UserSessionCrossDCManager;
 import org.keycloak.services.util.DefaultClientSessionContext;
 
+import java.net.URI;
 import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.HexFormat;
@@ -228,16 +229,26 @@ public abstract class AbstractValidateEndpoint {
     }
 
     protected void createProxyGrant(String pgtUrl) {
-        if ( RedirectUtils.verifyRedirectUri(session, pgtUrl, client) == null ) {
+        String verifiedPgtUrl = RedirectUtils.verifyRedirectUri(session, pgtUrl, client);
+        if (verifiedPgtUrl == null) {
             event.error(Errors.INVALID_REQUEST);
             throw new CASValidationException(CASErrorCode.INVALID_PROXY_CALLBACK, "Proxy callback is invalid", Response.Status.BAD_REQUEST);
         }
 
+        // The callback receives a PGT, so require HTTPS unless the realm's "Require SSL" setting allows plain HTTP for the host
+        URI pgtUri = URI.create(verifiedPgtUrl);
+        boolean isHttps = "https".equalsIgnoreCase(pgtUri.getScheme());
+        boolean isHttp = "http".equalsIgnoreCase(pgtUri.getScheme());
+        if (pgtUri.getHost() == null || !(isHttps || (isHttp && !realm.getSslRequired().isRequired(pgtUri.getHost())))) {
+            event.error(Errors.INVALID_REQUEST);
+            throw new CASValidationException(CASErrorCode.INVALID_PROXY_CALLBACK, "Proxy callback must use HTTPS", Response.Status.BAD_REQUEST);
+        }
+
         String pgtIou = getPGTIOU();
-        String pgtId  = getPGT(session, clientSession, pgtUrl);
+        String pgtId  = getPGT(session, clientSession, verifiedPgtUrl);
 
         try {
-            HttpGet request = new HttpGet(new URIBuilder(pgtUrl).setParameter("pgtIou",pgtIou).setParameter("pgtId",pgtId).build());
+            HttpGet request = new HttpGet(new URIBuilder(verifiedPgtUrl).setParameter("pgtIou",pgtIou).setParameter("pgtId",pgtId).build());
             request.setConfig(PGT_CALLBACK_REQUEST_CONFIG);
 
             HttpClient httpClient = session.getProvider(HttpClientProvider.class).getHttpClient();

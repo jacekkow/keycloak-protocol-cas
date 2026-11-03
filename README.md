@@ -54,6 +54,9 @@ This manifests with "Page Not Found" error on login attempt
 In such case append `/login` to the CAS URL to get the "login URL".
 Similarly append `/serviceValidate` to get the "validate URL".
 
+Proxy callback URLs (`pgtUrl`) must match the client's redirect URIs and use HTTPS.
+Plain HTTP is accepted only if the realm's "Require SSL" setting allows it.
+
 ## Disclaimer
 
 This plugin was implemented from scratch to comply to the official CAS protocol specification,
