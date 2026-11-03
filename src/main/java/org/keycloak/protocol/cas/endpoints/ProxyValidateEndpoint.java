@@ -6,12 +6,10 @@ import jakarta.ws.rs.core.MultivaluedMap;
 import jakarta.ws.rs.core.Response;
 import java.util.Map;
 import org.jboss.resteasy.annotations.cache.NoCache;
-import org.keycloak.events.Errors;
 import org.keycloak.events.EventBuilder;
 import org.keycloak.events.EventType;
 import org.keycloak.models.*;
 import org.keycloak.protocol.cas.CASLoginProtocol;
-import org.keycloak.protocol.cas.representations.CASErrorCode;
 import org.keycloak.protocol.cas.representations.CASServiceResponse;
 import org.keycloak.protocol.cas.utils.CASValidationException;
 import org.keycloak.protocol.cas.utils.ContentTypeHelper;
@@ -27,6 +25,7 @@ public class ProxyValidateEndpoint extends AbstractValidateEndpoint {
     @NoCache
     public Response build() {
         MultivaluedMap<String, String> params = session.getContext().getUri().getQueryParameters();
+        String service = params.getFirst(CASLoginProtocol.SERVICE_PARAM);
         String ticket = params.getFirst(CASLoginProtocol.TICKET_PARAM);
         String pgtUrl = params.getFirst(CASLoginProtocol.PGTURL_PARAM);
         boolean renew = params.containsKey(CASLoginProtocol.RENEW_PARAM);
@@ -34,17 +33,12 @@ public class ProxyValidateEndpoint extends AbstractValidateEndpoint {
         event.event(EventType.CODE_TO_TOKEN);
 
         try {
-            String prefix = ticket.startsWith(CASLoginProtocol.PROXY_TICKET_PREFIX)? CASLoginProtocol.PROXY_TICKET_PREFIX:(
-                ticket.startsWith(CASLoginProtocol.SERVICE_TICKET_PREFIX)? CASLoginProtocol.SERVICE_TICKET_PREFIX : null
-            );
-
-            if (prefix == null) {
-                event.error(Errors.INVALID_CODE);
-                throw new CASValidationException(CASErrorCode.INVALID_TICKET_SPEC, "Malformed service ticket", Response.Status.BAD_REQUEST);
-            }
+            String prefix = ticket != null && ticket.startsWith(CASLoginProtocol.PROXY_TICKET_PREFIX) ?
+                    CASLoginProtocol.PROXY_TICKET_PREFIX : CASLoginProtocol.SERVICE_TICKET_PREFIX;
 
             checkSsl();
             checkRealm();
+            checkClient(service);
             checkTicket(ticket, prefix, renew);
             if (pgtUrl != null) createProxyGrant(pgtUrl);
             event.success();

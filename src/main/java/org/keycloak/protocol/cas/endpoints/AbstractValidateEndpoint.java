@@ -18,6 +18,7 @@ import org.keycloak.services.managers.AuthenticationManager;
 import org.keycloak.services.managers.UserSessionCrossDCManager;
 import org.keycloak.services.util.DefaultClientSessionContext;
 
+import java.net.URI;
 import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.HexFormat;
@@ -27,19 +28,30 @@ import java.util.Set;
 import java.util.UUID;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
+import org.apache.http.client.HttpClient;
+import org.apache.http.client.config.RequestConfig;
 import org.apache.http.client.utils.URIBuilder;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.HttpResponse;
-import org.apache.http.impl.client.HttpClientBuilder;
+import org.apache.http.util.EntityUtils;
+import org.keycloak.connections.httpclient.HttpClientProvider;
 
 public abstract class AbstractValidateEndpoint {
     protected final Logger logger = Logger.getLogger(getClass());
     private static final Pattern DOT = Pattern.compile("\\.");
     private static final Pattern SEPERATION_PATTERN = Pattern.compile("--");
+    private static final int PGT_CALLBACK_TIMEOUT_MS = 5000;
+    private static final RequestConfig PGT_CALLBACK_REQUEST_CONFIG = RequestConfig.custom()
+            .setConnectTimeout(PGT_CALLBACK_TIMEOUT_MS)
+            .setConnectionRequestTimeout(PGT_CALLBACK_TIMEOUT_MS)
+            .setSocketTimeout(PGT_CALLBACK_TIMEOUT_MS)
+            .setRedirectsEnabled(false)
+            .build();
     protected KeycloakSession session;
     protected RealmModel realm;
     protected EventBuilder event;
     protected ClientModel client;
+    protected String service;
     protected AuthenticatedClientSessionModel clientSession;
     protected String pgtIou;
 
@@ -69,10 +81,7 @@ public abstract class AbstractValidateEndpoint {
 
         event.detail(Details.REDIRECT_URI, service);
 
-        client = realm.getClientsStream()
-                .filter(c -> CASLoginProtocol.LOGIN_PROTOCOL.equals(c.getProtocol()))
-                .filter(c -> RedirectUtils.verifyRedirectUri(session, service, c) != null)
-                .findFirst().orElse(null);
+        client = findClient(service);
         if (client == null) {
             event.error(Errors.CLIENT_NOT_FOUND);
             throw new CASValidationException(CASErrorCode.INVALID_SERVICE, "Client not found", Response.Status.BAD_REQUEST);
@@ -83,9 +92,18 @@ public abstract class AbstractValidateEndpoint {
             throw new CASValidationException(CASErrorCode.INVALID_SERVICE, "Client disabled", Response.Status.BAD_REQUEST);
         }
 
+        this.service = RedirectUtils.verifyRedirectUri(session, service, client);
+
         event.client(client.getClientId());
 
         session.getContext().setClient(client);
+    }
+
+    protected ClientModel findClient(String service) {
+        return realm.getClientsStream()
+                .filter(c -> CASLoginProtocol.LOGIN_PROTOCOL.equals(c.getProtocol()))
+                .filter(c -> RedirectUtils.verifyRedirectUri(session, service, c) != null)
+                .findFirst().orElse(null);
     }
 
     protected void checkTicket(String ticket, String prefix, boolean requireReauth) {
@@ -162,7 +180,11 @@ public abstract class AbstractValidateEndpoint {
             throw new CASValidationException(CASErrorCode.INVALID_TICKET, "Code is expired", Response.Status.BAD_REQUEST);
         }
 
-        clientSession.setNote(CASLoginProtocol.SESSION_TICKET, ticket);
+        // Service and proxy tickets are valid only for the service they were issued for
+        if (!isReusable && (service == null || !service.equals(codeData.getRedirectUriParam()))) {
+            event.error(Errors.INVALID_REDIRECT_URI);
+            throw new CASValidationException(CASErrorCode.INVALID_SERVICE, "Ticket was not issued for this service", Response.Status.BAD_REQUEST);
+        }
 
         if (requireReauth && AuthenticationManager.isSSOAuthentication(clientSession)) {
             event.error(Errors.SESSION_EXPIRED);
@@ -184,7 +206,8 @@ public abstract class AbstractValidateEndpoint {
 
         if (client == null) {
             client = clientSession.getClient();
-        } else {
+        } else if (!prefix.equals(CASLoginProtocol.PROXY_TICKET_PREFIX)) {
+            // Proxy tickets are issued from the proxying client's session for a (possibly) different target service
             if (!client.getClientId().equals(clientSession.getClient().getClientId())) {
                 event.error(Errors.INVALID_CODE);
                 throw new CASValidationException(CASErrorCode.INVALID_SERVICE, "Invalid service", Response.Status.BAD_REQUEST);
@@ -201,28 +224,49 @@ public abstract class AbstractValidateEndpoint {
             throw new CASValidationException(CASErrorCode.INVALID_TICKET, "Session not active", Response.Status.BAD_REQUEST);
         }
 
+        // Single logout refers to the service ticket the client session was established with
+        if (prefix.equals(CASLoginProtocol.SERVICE_TICKET_PREFIX)) {
+            clientSession.setNote(CASLoginProtocol.SESSION_TICKET, ticket);
+        }
     }
 
     protected void createProxyGrant(String pgtUrl) {
-        if ( RedirectUtils.verifyRedirectUri(session, pgtUrl, client) == null ) {
+        String verifiedPgtUrl = RedirectUtils.verifyRedirectUri(session, pgtUrl, client);
+        if (verifiedPgtUrl == null) {
             event.error(Errors.INVALID_REQUEST);
             throw new CASValidationException(CASErrorCode.INVALID_PROXY_CALLBACK, "Proxy callback is invalid", Response.Status.BAD_REQUEST);
         }
 
+        // The callback receives a PGT, so require HTTPS unless the realm's "Require SSL" setting allows plain HTTP for the host
+        URI pgtUri = URI.create(verifiedPgtUrl);
+        boolean isHttps = "https".equalsIgnoreCase(pgtUri.getScheme());
+        boolean isHttp = "http".equalsIgnoreCase(pgtUri.getScheme());
+        if (pgtUri.getHost() == null || !(isHttps || (isHttp && !realm.getSslRequired().isRequired(pgtUri.getHost())))) {
+            event.error(Errors.INVALID_REQUEST);
+            throw new CASValidationException(CASErrorCode.INVALID_PROXY_CALLBACK, "Proxy callback must use HTTPS", Response.Status.BAD_REQUEST);
+        }
+
         String pgtIou = getPGTIOU();
-        String pgtId  = getPGT(session, clientSession, pgtUrl);
+        String pgtId  = getPGT(session, clientSession, verifiedPgtUrl);
 
         try {
-            HttpResponse response = HttpClientBuilder.create().build().execute(
-                new HttpGet(new URIBuilder(pgtUrl).setParameter("pgtIou",pgtIou).setParameter("pgtId",pgtId).build())
-            );
+            HttpGet request = new HttpGet(new URIBuilder(verifiedPgtUrl).setParameter("pgtIou",pgtIou).setParameter("pgtId",pgtId).build());
+            request.setConfig(PGT_CALLBACK_REQUEST_CONFIG);
 
-            if (response.getStatusLine().getStatusCode() != 200) {
-                throw new Exception();
+            HttpClient httpClient = session.getProvider(HttpClientProvider.class).getHttpClient();
+            HttpResponse response = httpClient.execute(request);
+            try {
+                if (response.getStatusLine().getStatusCode() != 200) {
+                    throw new Exception();
+                }
+            } finally {
+                EntityUtils.consumeQuietly(response.getEntity());
             }
 
             this.pgtIou = pgtIou;
         } catch (Exception e) {
+            // The PGT was not delivered, so do not leave it usable
+            session.singleUseObjects().remove(pgtId.substring(0, pgtId.indexOf("--")));
             event.error(Errors.INVALID_REQUEST);
             throw new CASValidationException(CASErrorCode.PROXY_CALLBACK_ERROR, "Proxy callback returned an error", Response.Status.BAD_REQUEST);
         }
@@ -286,7 +330,12 @@ public abstract class AbstractValidateEndpoint {
     }
 
     private String hexDecode(String hex) {
-        byte[] bytes = HexFormat.of().parseHex(hex);
-        return new String(bytes, StandardCharsets.US_ASCII);
+        try {
+            byte[] bytes = HexFormat.of().parseHex(hex);
+            return new String(bytes, StandardCharsets.US_ASCII);
+        } catch (IllegalArgumentException e) {
+            event.error(Errors.INVALID_CODE);
+            throw new CASValidationException(CASErrorCode.INVALID_TICKET_SPEC, "Invalid format of the code", Response.Status.BAD_REQUEST);
+        }
     }
 }

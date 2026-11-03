@@ -41,6 +41,14 @@ ticket=$(get_ticket)
 $CURL "${keycloak_cas_url}/validate?service=http://localhost&ticket=$ticket"
 echo
 
+echo "Testing CAS 1.0 - ticket issued for another service..."
+ticket=$(get_ticket)
+if $CURL "${keycloak_cas_url}/validate?service=http://localhost/other&ticket=$ticket"; then
+    echo "Ticket was accepted for a different service"
+    exit 1
+fi
+echo
+
 # CAS 2.0
 echo "Testing CAS 2.0 - XML..."
 ticket=$(get_ticket)
@@ -57,6 +65,34 @@ echo "Testing CAS 3.0..."
 ticket=$(get_ticket save_cookies)
 $CURL "${keycloak_cas_url}/p3/serviceValidate?service=http://localhost&format=JSON&ticket=$ticket"
 echo
+
+# CAS 2.0 - proxy validation
+echo "Testing CAS 2.0 - proxyValidate..."
+ticket=$(get_ticket)
+$CURL "${keycloak_cas_url}/proxyValidate?service=http://localhost&format=JSON&ticket=$ticket"
+echo
+
+echo "Testing CAS 2.0 - proxyValidate without service..."
+ticket=$(get_ticket)
+if $CURL "${keycloak_cas_url}/proxyValidate?format=JSON&ticket=$ticket"; then
+    echo "Ticket was accepted without service parameter"
+    exit 1
+fi
+echo
+
+echo "Testing CAS 2.0 - malformed ticket..."
+response=$(curl --silent --write-out '%{http_code}' --output /dev/null "${keycloak_cas_url}/serviceValidate?service=http://localhost&ticket=ST-x--zz--y")
+if [ "$response" != "400" ]; then
+    echo "Malformed ticket returned HTTP ${response} instead of 400"
+    exit 1
+fi
+
+echo "Testing CAS 2.0 - proxyValidate without ticket..."
+response=$(curl --silent --write-out '%{http_code}' --output /dev/null "${keycloak_cas_url}/proxyValidate?service=http://localhost")
+if [ "$response" != "400" ]; then
+    echo "Missing ticket returned HTTP ${response} instead of 400"
+    exit 1
+fi
 
 # SAML 1.1
 echo "Testing SAML 1.1..."
