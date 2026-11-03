@@ -27,15 +27,25 @@ import java.util.Set;
 import java.util.UUID;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
+import org.apache.http.client.HttpClient;
+import org.apache.http.client.config.RequestConfig;
 import org.apache.http.client.utils.URIBuilder;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.HttpResponse;
-import org.apache.http.impl.client.HttpClientBuilder;
+import org.apache.http.util.EntityUtils;
+import org.keycloak.connections.httpclient.HttpClientProvider;
 
 public abstract class AbstractValidateEndpoint {
     protected final Logger logger = Logger.getLogger(getClass());
     private static final Pattern DOT = Pattern.compile("\\.");
     private static final Pattern SEPERATION_PATTERN = Pattern.compile("--");
+    private static final int PGT_CALLBACK_TIMEOUT_MS = 5000;
+    private static final RequestConfig PGT_CALLBACK_REQUEST_CONFIG = RequestConfig.custom()
+            .setConnectTimeout(PGT_CALLBACK_TIMEOUT_MS)
+            .setConnectionRequestTimeout(PGT_CALLBACK_TIMEOUT_MS)
+            .setSocketTimeout(PGT_CALLBACK_TIMEOUT_MS)
+            .setRedirectsEnabled(false)
+            .build();
     protected KeycloakSession session;
     protected RealmModel realm;
     protected EventBuilder event;
@@ -227,16 +237,23 @@ public abstract class AbstractValidateEndpoint {
         String pgtId  = getPGT(session, clientSession, pgtUrl);
 
         try {
-            HttpResponse response = HttpClientBuilder.create().build().execute(
-                new HttpGet(new URIBuilder(pgtUrl).setParameter("pgtIou",pgtIou).setParameter("pgtId",pgtId).build())
-            );
+            HttpGet request = new HttpGet(new URIBuilder(pgtUrl).setParameter("pgtIou",pgtIou).setParameter("pgtId",pgtId).build());
+            request.setConfig(PGT_CALLBACK_REQUEST_CONFIG);
 
-            if (response.getStatusLine().getStatusCode() != 200) {
-                throw new Exception();
+            HttpClient httpClient = session.getProvider(HttpClientProvider.class).getHttpClient();
+            HttpResponse response = httpClient.execute(request);
+            try {
+                if (response.getStatusLine().getStatusCode() != 200) {
+                    throw new Exception();
+                }
+            } finally {
+                EntityUtils.consumeQuietly(response.getEntity());
             }
 
             this.pgtIou = pgtIou;
         } catch (Exception e) {
+            // The PGT was not delivered, so do not leave it usable
+            session.singleUseObjects().remove(pgtId.substring(0, pgtId.indexOf("--")));
             event.error(Errors.INVALID_REQUEST);
             throw new CASValidationException(CASErrorCode.PROXY_CALLBACK_ERROR, "Proxy callback returned an error", Response.Status.BAD_REQUEST);
         }
