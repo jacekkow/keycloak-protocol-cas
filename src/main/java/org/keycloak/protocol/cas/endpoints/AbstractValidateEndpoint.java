@@ -330,7 +330,12 @@ public abstract class AbstractValidateEndpoint {
     }
 
     private String hexDecode(String hex) {
-        byte[] bytes = HexFormat.of().parseHex(hex);
-        return new String(bytes, StandardCharsets.US_ASCII);
+        try {
+            byte[] bytes = HexFormat.of().parseHex(hex);
+            return new String(bytes, StandardCharsets.US_ASCII);
+        } catch (IllegalArgumentException e) {
+            event.error(Errors.INVALID_CODE);
+            throw new CASValidationException(CASErrorCode.INVALID_TICKET_SPEC, "Invalid format of the code", Response.Status.BAD_REQUEST);
+        }
     }
 }

@@ -80,6 +80,20 @@ if $CURL "${keycloak_cas_url}/proxyValidate?format=JSON&ticket=$ticket"; then
 fi
 echo
 
+echo "Testing CAS 2.0 - malformed ticket..."
+response=$(curl --silent --write-out '%{http_code}' --output /dev/null "${keycloak_cas_url}/serviceValidate?service=http://localhost&ticket=ST-x--zz--y")
+if [ "$response" != "400" ]; then
+    echo "Malformed ticket returned HTTP ${response} instead of 400"
+    exit 1
+fi
+
+echo "Testing CAS 2.0 - proxyValidate without ticket..."
+response=$(curl --silent --write-out '%{http_code}' --output /dev/null "${keycloak_cas_url}/proxyValidate?service=http://localhost")
+if [ "$response" != "400" ]; then
+    echo "Missing ticket returned HTTP ${response} instead of 400"
+    exit 1
+fi
+
 # SAML 1.1
 echo "Testing SAML 1.1..."
 ticket=$(get_ticket SAML)
