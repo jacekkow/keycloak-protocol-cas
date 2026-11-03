@@ -58,6 +58,20 @@ ticket=$(get_ticket save_cookies)
 $CURL "${keycloak_cas_url}/p3/serviceValidate?service=http://localhost&format=JSON&ticket=$ticket"
 echo
 
+# CAS 2.0 - proxy validation
+echo "Testing CAS 2.0 - proxyValidate..."
+ticket=$(get_ticket)
+$CURL "${keycloak_cas_url}/proxyValidate?service=http://localhost&format=JSON&ticket=$ticket"
+echo
+
+echo "Testing CAS 2.0 - proxyValidate without service..."
+ticket=$(get_ticket)
+if $CURL "${keycloak_cas_url}/proxyValidate?format=JSON&ticket=$ticket"; then
+    echo "Ticket was accepted without service parameter"
+    exit 1
+fi
+echo
+
 # SAML 1.1
 echo "Testing SAML 1.1..."
 ticket=$(get_ticket SAML)
