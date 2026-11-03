@@ -40,6 +40,7 @@ public abstract class AbstractValidateEndpoint {
     protected RealmModel realm;
     protected EventBuilder event;
     protected ClientModel client;
+    protected String service;
     protected AuthenticatedClientSessionModel clientSession;
     protected String pgtIou;
 
@@ -82,6 +83,8 @@ public abstract class AbstractValidateEndpoint {
             event.error(Errors.CLIENT_DISABLED);
             throw new CASValidationException(CASErrorCode.INVALID_SERVICE, "Client disabled", Response.Status.BAD_REQUEST);
         }
+
+        this.service = RedirectUtils.verifyRedirectUri(session, service, client);
 
         event.client(client.getClientId());
 
@@ -160,6 +163,12 @@ public abstract class AbstractValidateEndpoint {
         if (currentTime > codeData.getExpiration()) {
             event.error(Errors.EXPIRED_CODE);
             throw new CASValidationException(CASErrorCode.INVALID_TICKET, "Code is expired", Response.Status.BAD_REQUEST);
+        }
+
+        // Service and proxy tickets are valid only for the service they were issued for
+        if (!isReusable && (service == null || !service.equals(codeData.getRedirectUriParam()))) {
+            event.error(Errors.INVALID_REDIRECT_URI);
+            throw new CASValidationException(CASErrorCode.INVALID_SERVICE, "Ticket was not issued for this service", Response.Status.BAD_REQUEST);
         }
 
         clientSession.setNote(CASLoginProtocol.SESSION_TICKET, ticket);
