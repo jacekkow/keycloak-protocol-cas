@@ -41,6 +41,14 @@ ticket=$(get_ticket)
 $CURL "${keycloak_cas_url}/validate?service=http://localhost&ticket=$ticket"
 echo
 
+echo "Testing CAS 1.0 - ticket issued for another service..."
+ticket=$(get_ticket)
+if $CURL "${keycloak_cas_url}/validate?service=http://localhost/other&ticket=$ticket"; then
+    echo "Ticket was accepted for a different service"
+    exit 1
+fi
+echo
+
 # CAS 2.0
 echo "Testing CAS 2.0 - XML..."
 ticket=$(get_ticket)
