@@ -186,8 +186,6 @@ public abstract class AbstractValidateEndpoint {
             throw new CASValidationException(CASErrorCode.INVALID_SERVICE, "Ticket was not issued for this service", Response.Status.BAD_REQUEST);
         }
 
-        clientSession.setNote(CASLoginProtocol.SESSION_TICKET, ticket);
-
         if (requireReauth && AuthenticationManager.isSSOAuthentication(clientSession)) {
             event.error(Errors.SESSION_EXPIRED);
             throw new CASValidationException(CASErrorCode.INVALID_TICKET, "Interactive authentication was requested but not performed", Response.Status.BAD_REQUEST);
@@ -226,6 +224,10 @@ public abstract class AbstractValidateEndpoint {
             throw new CASValidationException(CASErrorCode.INVALID_TICKET, "Session not active", Response.Status.BAD_REQUEST);
         }
 
+        // Single logout refers to the service ticket the client session was established with
+        if (prefix.equals(CASLoginProtocol.SERVICE_TICKET_PREFIX)) {
+            clientSession.setNote(CASLoginProtocol.SESSION_TICKET, ticket);
+        }
     }
 
     protected void createProxyGrant(String pgtUrl) {
