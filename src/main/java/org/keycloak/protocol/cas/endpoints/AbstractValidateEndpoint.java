@@ -184,7 +184,8 @@ public abstract class AbstractValidateEndpoint {
 
         if (client == null) {
             client = clientSession.getClient();
-        } else {
+        } else if (!prefix.equals(CASLoginProtocol.PROXY_TICKET_PREFIX)) {
+            // Proxy tickets are issued from the proxying client's session for a (possibly) different target service
             if (!client.getClientId().equals(clientSession.getClient().getClientId())) {
                 event.error(Errors.INVALID_CODE);
                 throw new CASValidationException(CASErrorCode.INVALID_SERVICE, "Invalid service", Response.Status.BAD_REQUEST);
