@@ -70,10 +70,7 @@ public abstract class AbstractValidateEndpoint {
 
         event.detail(Details.REDIRECT_URI, service);
 
-        client = realm.getClientsStream()
-                .filter(c -> CASLoginProtocol.LOGIN_PROTOCOL.equals(c.getProtocol()))
-                .filter(c -> RedirectUtils.verifyRedirectUri(session, service, c) != null)
-                .findFirst().orElse(null);
+        client = findClient(service);
         if (client == null) {
             event.error(Errors.CLIENT_NOT_FOUND);
             throw new CASValidationException(CASErrorCode.INVALID_SERVICE, "Client not found", Response.Status.BAD_REQUEST);
@@ -89,6 +86,13 @@ public abstract class AbstractValidateEndpoint {
         event.client(client.getClientId());
 
         session.getContext().setClient(client);
+    }
+
+    protected ClientModel findClient(String service) {
+        return realm.getClientsStream()
+                .filter(c -> CASLoginProtocol.LOGIN_PROTOCOL.equals(c.getProtocol()))
+                .filter(c -> RedirectUtils.verifyRedirectUri(session, service, c) != null)
+                .findFirst().orElse(null);
     }
 
     protected void checkTicket(String ticket, String prefix, boolean requireReauth) {

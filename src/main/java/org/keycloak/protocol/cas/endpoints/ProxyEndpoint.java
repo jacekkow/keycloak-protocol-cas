@@ -5,12 +5,15 @@ import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.MultivaluedMap;
 import jakarta.ws.rs.core.Response;
 import org.jboss.resteasy.annotations.cache.NoCache;
+import org.keycloak.events.Errors;
 import org.keycloak.events.EventBuilder;
 import org.keycloak.events.EventType;
 import org.keycloak.models.*;
 import org.keycloak.protocol.cas.CASLoginProtocol;
+import org.keycloak.protocol.cas.representations.CASErrorCode;
 import org.keycloak.protocol.cas.representations.CASServiceResponse;
 import org.keycloak.protocol.cas.utils.CASValidationException;
+import org.keycloak.protocol.cas.utils.RedirectUtils;
 import org.keycloak.protocol.cas.utils.ContentTypeHelper;
 import org.keycloak.protocol.cas.utils.ServiceResponseHelper;
 
@@ -33,11 +36,27 @@ public class ProxyEndpoint extends AbstractValidateEndpoint {
             checkSsl();
             checkRealm();
             checkTicket(pgt, CASLoginProtocol.PROXY_GRANTING_TICKET_PREFIX, false);
+            String verifiedTargetService = checkTargetService(targetService);
             event.success();
-            return successResponse(getPT(this.session, clientSession, targetService));
+            return successResponse(getPT(this.session, clientSession, verifiedTargetService));
         } catch (CASValidationException e) {
             return errorResponse(e);
         }
+    }
+
+    private String checkTargetService(String targetService) {
+        if (targetService == null) {
+            event.error(Errors.INVALID_REQUEST);
+            throw new CASValidationException(CASErrorCode.INVALID_REQUEST, "Missing parameter: " + CASLoginProtocol.TARGET_SERVICE_PARAM, Response.Status.BAD_REQUEST);
+        }
+
+        ClientModel targetClient = findClient(targetService);
+        if (targetClient == null || !targetClient.isEnabled()) {
+            event.error(Errors.CLIENT_NOT_FOUND);
+            throw new CASValidationException(CASErrorCode.INVALID_SERVICE, "Target service not allowed", Response.Status.BAD_REQUEST);
+        }
+
+        return RedirectUtils.verifyRedirectUri(session, targetService, targetClient);
     }
 
     protected Response successResponse(String pt) {
